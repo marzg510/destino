@@ -3,7 +3,6 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
-import 'dart:math';
 
 void main() {
   runApp(MaterialApp(home: GameWidget(game: MyGame())));
@@ -45,6 +44,10 @@ class MyWorld extends World {
   // タイルキャッシュ
   final Map<String, BackgroundTile> _tiles = {};
 
+  // 最適化: 前回のプレイヤーのタイル位置を記録
+  int _lastPlayerTileX = 0;
+  int _lastPlayerTileY = 0;
+
   @override
   Future<void> onLoad() async {
     player = Player(position: Vector2.zero());
@@ -57,7 +60,17 @@ class MyWorld extends World {
   @override
   void update(double dt) {
     super.update(dt);
-    _updateVisibleTiles();
+
+    // プレイヤーの現在のタイル座標を計算
+    final currentTileX = (player.position.x / tileSize).floor();
+    final currentTileY = (player.position.y / tileSize).floor();
+
+    // タイル位置が変化した場合のみ可視タイルを更新
+    if (currentTileX != _lastPlayerTileX || currentTileY != _lastPlayerTileY) {
+      _lastPlayerTileX = currentTileX;
+      _lastPlayerTileY = currentTileY;
+      _updateVisibleTiles();
+    }
   }
 
   void _updateVisibleTiles() {
