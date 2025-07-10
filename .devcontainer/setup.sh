@@ -7,3 +7,9 @@ echo "Installing Flutter SDK..."
 flutter doctor
 
 echo "Flutter setup completed!"
+
+# Flame パッケージのインストール
+echo "Installing Flame package..."
+cd life_game_app
+flutter pub get
+echo "Flame package installed successfully!"
