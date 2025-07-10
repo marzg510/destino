@@ -36,7 +36,8 @@
   "forwardPorts": [3000, 8080, 9000],
   
   "mounts": [
-    "source=${localWorkspaceFolder}/.devcontainer/flutter-cache,target=/root/.flutter,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder}/.devcontainer/flutter-cache,target=/root/.flutter,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/.devcontainer/config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached"
   ],
 
   "remoteUser": "vscode",

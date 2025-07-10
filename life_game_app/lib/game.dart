@@ -3,12 +3,20 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 class LifeGame extends FlameGame with HasCollisionDetection {
+  static const double gameWidth = 800;
+  static const double gameHeight = 600;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
+    camera.viewfinder.visibleGameSize = Vector2(gameWidth, gameHeight);
+
     add(MovingSquare());
   }
+
+  @override
+  Color backgroundColor() => const Color(0xFF2C2C2C);
 }
 
 class MovingSquare extends RectangleComponent with HasGameReference<LifeGame> {
