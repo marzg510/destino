@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 
 void main() {
-  runApp(GameWidget(game: MyGame()));
+  runApp(MaterialApp(
+    home: GameWidget(game: MyGame()),
+  ));
 }
 
 class MyGame extends FlameGame with HasKeyboardHandlerComponents {
@@ -16,6 +17,7 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents {
   Future<void> onLoad() async {
     myWorld = MyWorld();
     world = myWorld;
+    await myWorld.loaded;
     camera.follow(myWorld.player);
     return super.onLoad();
   }
