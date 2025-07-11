@@ -1,11 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import '../constants/game_constants.dart';
+import 'destination_marker.dart';
 
 class Player extends SpriteComponent {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
   bool isMovingToDestination = false;
+  DestinationMarker? destinationMarker;
 
   Player({super.position})
       : super(size: Vector2.all(GameConstants.playerSize), anchor: Anchor.center);
@@ -18,11 +20,26 @@ class Player extends SpriteComponent {
   void setDestination(Vector2 target) {
     destination = target.clone();
     isMovingToDestination = true;
+    
+    // 既存のマーカーを削除
+    if (destinationMarker != null) {
+      destinationMarker!.removeFromParent();
+    }
+    
+    // 新しいマーカーを作成
+    destinationMarker = DestinationMarker(position: target);
+    parent?.add(destinationMarker!);
   }
 
   void stopAutoMovement() {
     isMovingToDestination = false;
     destination = null;
+    
+    // マーカーを削除
+    if (destinationMarker != null) {
+      destinationMarker!.removeFromParent();
+      destinationMarker = null;
+    }
   }
 
   @override
@@ -35,12 +52,13 @@ class Player extends SpriteComponent {
       double distance = direction.length;
       
       if (distance > GameConstants.movementThreshold) {
+        // 正規化された方向ベクトルを計算
         direction.normalize();
         velocity = direction * GameConstants.playerSpeed;
       } else {
+        // 目的地に到達
         position = destination!.clone();
-        isMovingToDestination = false;
-        destination = null;
+        stopAutoMovement();
         velocity = Vector2.zero();
       }
     }
