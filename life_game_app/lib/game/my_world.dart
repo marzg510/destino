@@ -1,10 +1,17 @@
+import 'dart:math';
 import 'package:flame/components.dart';
 import '../components/player.dart';
 import '../components/background_tile.dart';
+import '../components/destination_marker.dart';
+import '../components/arrival_effect.dart';
+import '../interfaces/player_events.dart';
 import '../constants/game_constants.dart';
 
-class MyWorld extends World {
+class MyWorld extends World implements PlayerEventCallbacks {
   late Player player;
+  DestinationMarker? destinationMarker;
+  final Random _random = Random();
+  bool _isPaused = false;
 
   // タイルキャッシュ
   final Map<String, BackgroundTile> _tiles = {};
@@ -16,10 +23,14 @@ class MyWorld extends World {
   @override
   Future<void> onLoad() async {
     player = Player(position: Vector2.zero());
+    player.eventCallbacks = this; // コールバックを設定
     add(player);
 
     // 初期タイルを生成
     _updateVisibleTiles();
+    
+    // ゲーム開始時にランダムな目的地を設定
+    setRandomDestination();
   }
 
   @override
@@ -44,10 +55,22 @@ class MyWorld extends World {
     final playerTileY = (player.position.y / GameConstants.tileSize).round();
 
     // 現在表示すべきタイルの範囲
-    final minX = (playerTileX - GameConstants.renderDistance).clamp(-GameConstants.mapRadius, GameConstants.mapRadius);
-    final maxX = (playerTileX + GameConstants.renderDistance).clamp(-GameConstants.mapRadius, GameConstants.mapRadius);
-    final minY = (playerTileY - GameConstants.renderDistance).clamp(-GameConstants.mapRadius, GameConstants.mapRadius);
-    final maxY = (playerTileY + GameConstants.renderDistance).clamp(-GameConstants.mapRadius, GameConstants.mapRadius);
+    final minX = (playerTileX - GameConstants.renderDistance).clamp(
+      -GameConstants.mapRadius,
+      GameConstants.mapRadius,
+    );
+    final maxX = (playerTileX + GameConstants.renderDistance).clamp(
+      -GameConstants.mapRadius,
+      GameConstants.mapRadius,
+    );
+    final minY = (playerTileY - GameConstants.renderDistance).clamp(
+      -GameConstants.mapRadius,
+      GameConstants.mapRadius,
+    );
+    final maxY = (playerTileY + GameConstants.renderDistance).clamp(
+      -GameConstants.mapRadius,
+      GameConstants.mapRadius,
+    );
 
     // 現在表示すべきタイルのセット
     final visibleTiles = <String>{};
@@ -60,7 +83,10 @@ class MyWorld extends World {
 
         if (!_tiles.containsKey(key)) {
           final tile = BackgroundTile(
-            position: Vector2(i * GameConstants.tileSize, j * GameConstants.tileSize),
+            position: Vector2(
+              i * GameConstants.tileSize,
+              j * GameConstants.tileSize,
+            ),
             gridX: i,
             gridY: j,
           );
@@ -84,5 +110,84 @@ class MyWorld extends World {
         tile.removeFromParent();
       }
     }
+  }
+
+  void setPlayerDestination(Vector2 target) {
+    player.setDestination(target);
+
+    // 既存のマーカーを削除
+    if (destinationMarker != null) {
+      destinationMarker!.removeFromParent();
+    }
+
+    // 新しいマーカーを作成
+    destinationMarker = DestinationMarker(position: target);
+    add(destinationMarker!);
+  }
+
+  void setRandomDestination() {
+    // プレイヤーの現在位置から300～500の距離範囲のランダムな位置を生成
+    final playerPos = player.position;
+    final minDistance = 300.0;
+    final maxDistance = 500.0;
+
+    // ランダムな角度と距離を生成
+    final angle = _random.nextDouble() * 2 * pi;
+    final distance = minDistance + _random.nextDouble() * (maxDistance - minDistance);
+
+    // 極座標から直交座標に変換
+    final randomTarget = Vector2(
+      playerPos.x + cos(angle) * distance,
+      playerPos.y + sin(angle) * distance,
+    );
+
+    // マップ境界内にクランプ
+    final mapBounds = GameConstants.mapRadius * GameConstants.tileSize;
+    final clampedTarget = Vector2(
+      randomTarget.x.clamp(-mapBounds, mapBounds),
+      randomTarget.y.clamp(-mapBounds, mapBounds),
+    );
+
+    setPlayerDestination(clampedTarget);
+  }
+
+  void clearDestination() {
+    player.stopAutoMovement();
+
+    // マーカーを削除
+    if (destinationMarker != null) {
+      destinationMarker!.removeFromParent();
+      destinationMarker = null;
+    }
+  }
+
+  void showArrivalEffect(Vector2 position) {
+    final effect = ArrivalEffect(effectPosition: position);
+    add(effect);
+  }
+
+  void togglePause() {
+    _isPaused = !_isPaused;
+    if (_isPaused) {
+      // 一時停止時は移動を停止
+      player.stopAutoMovement();
+    } else {
+      // 再開時は既存の目的地があれば再開、なければ新しい目的地を設定
+      if (destinationMarker != null) {
+        player.startAutoMovement();
+      } else {
+        setRandomDestination();
+      }
+    }
+  }
+
+  @override
+  void onPlayerArrival(Vector2 arrivalPosition) {
+    // 演出を表示
+    showArrivalEffect(arrivalPosition);
+    // 目的地をクリア
+    clearDestination();
+    // 新しい目的地を設定
+    setRandomDestination();
   }
 }

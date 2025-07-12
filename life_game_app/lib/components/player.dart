@@ -1,16 +1,16 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import '../constants/game_constants.dart';
-import 'destination_marker.dart';
+import '../interfaces/player_events.dart';
 
 class Player extends SpriteComponent {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
-  bool isMovingToDestination = false;
-  DestinationMarker? destinationMarker;
+  bool isAutoMovementActive = true;
+  PlayerEventCallbacks? eventCallbacks;
 
   Player({super.position})
-      : super(size: Vector2.all(GameConstants.playerSize), anchor: Anchor.center);
+    : super(size: Vector2.all(GameConstants.playerSize), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -19,48 +19,41 @@ class Player extends SpriteComponent {
 
   void setDestination(Vector2 target) {
     destination = target.clone();
-    isMovingToDestination = true;
-    
-    // 既存のマーカーを削除
-    if (destinationMarker != null) {
-      destinationMarker!.removeFromParent();
-    }
-    
-    // 新しいマーカーを作成
-    destinationMarker = DestinationMarker(position: target);
-    parent?.add(destinationMarker!);
+    startAutoMovement();
   }
 
   void stopAutoMovement() {
-    isMovingToDestination = false;
-    destination = null;
-    
-    // マーカーを削除
-    if (destinationMarker != null) {
-      destinationMarker!.removeFromParent();
-      destinationMarker = null;
-    }
+    isAutoMovementActive = false;
+  }
+
+  void startAutoMovement() {
+    isAutoMovementActive = true;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
 
-    // 目的地への自動移動が有効な場合
-    if (isMovingToDestination && destination != null) {
-      Vector2 direction = destination! - position;
-      double distance = direction.length;
-      
-      if (distance > GameConstants.movementThreshold) {
-        // 正規化された方向ベクトルを計算
-        direction.normalize();
-        velocity = direction * GameConstants.playerSpeed;
-      } else {
-        // 目的地に到達
-        position = destination!.clone();
-        stopAutoMovement();
-        velocity = Vector2.zero();
-      }
+    if (!isAutoMovementActive || destination == null) {
+      velocity = Vector2.zero();
+      return;
+    }
+
+    Vector2 direction = destination! - position;
+    double distance = direction.length;
+
+    // 目的地の到達判定
+    if (distance > GameConstants.arrivalThreshold) {
+      // 正規化された方向ベクトルを計算
+      direction.normalize();
+      velocity = direction * GameConstants.playerSpeed;
+    } else {
+      // 目的地に到達
+      final arrivalPosition = position.clone();
+      stopAutoMovement();
+      velocity = Vector2.zero();
+      // 到達イベントを通知
+      eventCallbacks?.onPlayerArrival(arrivalPosition);
     }
 
     // 移動処理
@@ -77,28 +70,23 @@ class Player extends SpriteComponent {
   }
 
   void handleInput(Set<LogicalKeyboardKey> keysPressed) {
-    // 手動操作中は自動移動を停止
-    if (keysPressed.isNotEmpty) {
-      stopAutoMovement();
-    }
+    // velocity = Vector2.zero();
 
-    velocity = Vector2.zero();
-
-    if (keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
-        keysPressed.contains(LogicalKeyboardKey.keyA)) {
-      velocity.x = -GameConstants.playerSpeed;
-    }
-    if (keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
-        keysPressed.contains(LogicalKeyboardKey.keyD)) {
-      velocity.x = GameConstants.playerSpeed;
-    }
-    if (keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
-        keysPressed.contains(LogicalKeyboardKey.keyW)) {
-      velocity.y = -GameConstants.playerSpeed;
-    }
-    if (keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
-        keysPressed.contains(LogicalKeyboardKey.keyS)) {
-      velocity.y = GameConstants.playerSpeed;
-    }
+    // if (keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
+    //     keysPressed.contains(LogicalKeyboardKey.keyA)) {
+    //   velocity.x = -GameConstants.playerSpeed;
+    // }
+    // if (keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
+    //     keysPressed.contains(LogicalKeyboardKey.keyD)) {
+    //   velocity.x = GameConstants.playerSpeed;
+    // }
+    // if (keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
+    //     keysPressed.contains(LogicalKeyboardKey.keyW)) {
+    //   velocity.y = -GameConstants.playerSpeed;
+    // }
+    // if (keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
+    //     keysPressed.contains(LogicalKeyboardKey.keyS)) {
+    //   velocity.y = GameConstants.playerSpeed;
+    // }
   }
 }
