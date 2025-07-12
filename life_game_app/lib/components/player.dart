@@ -34,19 +34,18 @@ class Player extends SpriteComponent {
       Vector2 direction = destination! - position;
       double distance = direction.length;
       
-      if (distance > GameConstants.movementThreshold) {
+      if (distance > GameConstants.arrivalThreshold) {
         // 正規化された方向ベクトルを計算
         direction.normalize();
         velocity = direction * GameConstants.playerSpeed;
       } else {
         // 目的地に到達
-        final destinationPos = destination!.clone();
-        position = destinationPos;
+        final currentPlayerPos = position.clone();
         stopAutoMovement();
         velocity = Vector2.zero();
-        // MyWorldに到達を通知
+        // MyWorldに到達を通知（プレイヤーの現在位置で演出）
         if (parent != null) {
-          (parent as dynamic).showArrivalEffect?.call(destinationPos);
+          (parent as dynamic).showArrivalEffect?.call(currentPlayerPos);
           (parent as dynamic).clearDestination?.call();
         }
       }
