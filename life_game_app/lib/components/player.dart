@@ -47,6 +47,7 @@ class Player extends SpriteComponent {
         if (parent != null) {
           (parent as dynamic).showArrivalEffect?.call(currentPlayerPos);
           (parent as dynamic).clearDestination?.call();
+          (parent as dynamic).setRandomDestination?.call();
         }
       }
     }
