@@ -5,10 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "life_game_app",
+      "name": "life_game_app(web)",
       "cwd": "life_game_app",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "deviceId": "web-server",
     },
     {
       "name": "life_game_app (profile mode)",
