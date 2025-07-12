@@ -29,17 +29,8 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
 
   @override
   bool onTapDown(TapDownEvent event) {
-    // タップした位置をワールド座標に変換
-    final tapPosition = event.localPosition;
-    
-    // カメラのオフセットを考慮してワールド座標を計算
-    final worldTapPosition = Vector2(
-      tapPosition.x - size.x / 2 + camera.viewfinder.position.x,
-      tapPosition.y - size.y / 2 + camera.viewfinder.position.y,
-    );
-    
-    // プレイヤーの目的地を設定
-    myWorld.setPlayerDestination(worldTapPosition);
+    // ランダムな目的地を設定
+    myWorld.setRandomDestination();
     
     return true;
   }
