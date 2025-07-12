@@ -39,7 +39,7 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
     );
     
     // プレイヤーの目的地を設定
-    myWorld.player.setDestination(worldTapPosition);
+    myWorld.setPlayerDestination(worldTapPosition);
     
     return true;
   }

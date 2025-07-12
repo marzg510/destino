@@ -1,10 +1,12 @@
 import 'package:flame/components.dart';
 import '../components/player.dart';
 import '../components/background_tile.dart';
+import '../components/destination_marker.dart';
 import '../constants/game_constants.dart';
 
 class MyWorld extends World {
   late Player player;
+  DestinationMarker? destinationMarker;
 
   // タイルキャッシュ
   final Map<String, BackgroundTile> _tiles = {};
@@ -83,6 +85,29 @@ class MyWorld extends World {
       if (tile != null) {
         tile.removeFromParent();
       }
+    }
+  }
+
+  void setPlayerDestination(Vector2 target) {
+    player.setDestination(target);
+    
+    // 既存のマーカーを削除
+    if (destinationMarker != null) {
+      destinationMarker!.removeFromParent();
+    }
+    
+    // 新しいマーカーを作成
+    destinationMarker = DestinationMarker(position: target);
+    add(destinationMarker!);
+  }
+
+  void clearDestination() {
+    player.stopAutoMovement();
+    
+    // マーカーを削除
+    if (destinationMarker != null) {
+      destinationMarker!.removeFromParent();
+      destinationMarker = null;
     }
   }
 }

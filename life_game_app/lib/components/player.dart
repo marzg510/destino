@@ -1,13 +1,11 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import '../constants/game_constants.dart';
-import 'destination_marker.dart';
 
 class Player extends SpriteComponent {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
   bool isMovingToDestination = false;
-  DestinationMarker? destinationMarker;
 
   Player({super.position})
       : super(size: Vector2.all(GameConstants.playerSize), anchor: Anchor.center);
@@ -20,26 +18,11 @@ class Player extends SpriteComponent {
   void setDestination(Vector2 target) {
     destination = target.clone();
     isMovingToDestination = true;
-    
-    // 既存のマーカーを削除
-    if (destinationMarker != null) {
-      destinationMarker!.removeFromParent();
-    }
-    
-    // 新しいマーカーを作成
-    destinationMarker = DestinationMarker(position: target);
-    parent?.add(destinationMarker!);
   }
 
   void stopAutoMovement() {
     isMovingToDestination = false;
     destination = null;
-    
-    // マーカーを削除
-    if (destinationMarker != null) {
-      destinationMarker!.removeFromParent();
-      destinationMarker = null;
-    }
   }
 
   @override
@@ -60,6 +43,10 @@ class Player extends SpriteComponent {
         position = destination!.clone();
         stopAutoMovement();
         velocity = Vector2.zero();
+        // MyWorldに到達を通知
+        if (parent != null) {
+          (parent as dynamic).clearDestination?.call();
+        }
       }
     }
 
@@ -77,9 +64,13 @@ class Player extends SpriteComponent {
   }
 
   void handleInput(Set<LogicalKeyboardKey> keysPressed) {
-    // 手動操作中は自動移動を停止
+    // 手動操作中は自動移動を停止（ワールドに通知）
     if (keysPressed.isNotEmpty) {
       stopAutoMovement();
+      // MyWorldのclearDestinationを呼び出すためにparentを使用
+      if (parent != null) {
+        (parent as dynamic).clearDestination?.call();
+      }
     }
 
     velocity = Vector2.zero();
