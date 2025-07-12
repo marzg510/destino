@@ -40,11 +40,13 @@ class Player extends SpriteComponent {
         velocity = direction * GameConstants.playerSpeed;
       } else {
         // 目的地に到達
-        position = destination!.clone();
+        final destinationPos = destination!.clone();
+        position = destinationPos;
         stopAutoMovement();
         velocity = Vector2.zero();
         // MyWorldに到達を通知
         if (parent != null) {
+          (parent as dynamic).showArrivalEffect?.call(destinationPos);
           (parent as dynamic).clearDestination?.call();
         }
       }

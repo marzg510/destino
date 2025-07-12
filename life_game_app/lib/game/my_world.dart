@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import '../components/player.dart';
 import '../components/background_tile.dart';
 import '../components/destination_marker.dart';
+import '../components/arrival_effect.dart';
 import '../constants/game_constants.dart';
 
 class MyWorld extends World {
@@ -155,5 +156,10 @@ class MyWorld extends World {
       destinationMarker!.removeFromParent();
       destinationMarker = null;
     }
+  }
+
+  void showArrivalEffect(Vector2 position) {
+    final effect = ArrivalEffect(effectPosition: position);
+    add(effect);
   }
 }
