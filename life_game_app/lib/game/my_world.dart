@@ -10,6 +10,7 @@ class MyWorld extends World {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
+  bool _isPaused = false;
 
   // タイルキャッシュ
   final Map<String, BackgroundTile> _tiles = {};
@@ -161,5 +162,20 @@ class MyWorld extends World {
   void showArrivalEffect(Vector2 position) {
     final effect = ArrivalEffect(effectPosition: position);
     add(effect);
+  }
+
+  void togglePause() {
+    _isPaused = !_isPaused;
+    if (_isPaused) {
+      // 一時停止時は移動を停止
+      player.stopAutoMovement();
+    } else {
+      // 再開時は既存の目的地があれば再開、なければ新しい目的地を設定
+      if (destinationMarker != null) {
+        player.startAutoMovement();
+      } else {
+        setRandomDestination();
+      }
+    }
   }
 }

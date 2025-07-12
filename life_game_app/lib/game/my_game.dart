@@ -29,8 +29,8 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
 
   @override
   bool onTapDown(TapDownEvent event) {
-    // ランダムな目的地を設定
-    myWorld.setRandomDestination();
+    // 一時停止/再開の切り替え
+    myWorld.togglePause();
     
     return true;
   }
