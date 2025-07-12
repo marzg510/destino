@@ -4,9 +4,10 @@ import '../components/player.dart';
 import '../components/background_tile.dart';
 import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
+import '../interfaces/player_events.dart';
 import '../constants/game_constants.dart';
 
-class MyWorld extends World {
+class MyWorld extends World implements PlayerEventCallbacks {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
@@ -22,6 +23,7 @@ class MyWorld extends World {
   @override
   Future<void> onLoad() async {
     player = Player(position: Vector2.zero());
+    player.eventCallbacks = this; // コールバックを設定
     add(player);
 
     // 初期タイルを生成
@@ -177,5 +179,15 @@ class MyWorld extends World {
         setRandomDestination();
       }
     }
+  }
+
+  @override
+  void onPlayerArrival(Vector2 arrivalPosition) {
+    // 演出を表示
+    showArrivalEffect(arrivalPosition);
+    // 目的地をクリア
+    clearDestination();
+    // 新しい目的地を設定
+    setRandomDestination();
   }
 }

@@ -1,11 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import '../constants/game_constants.dart';
+import '../interfaces/player_events.dart';
 
 class Player extends SpriteComponent {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
   bool isAutoMovementActive = true;
+  PlayerEventCallbacks? eventCallbacks;
 
   Player({super.position})
     : super(size: Vector2.all(GameConstants.playerSize), anchor: Anchor.center);
@@ -32,7 +34,10 @@ class Player extends SpriteComponent {
   void update(double dt) {
     super.update(dt);
 
-    if (!isAutoMovementActive || destination == null) return;
+    if (!isAutoMovementActive || destination == null) {
+      velocity = Vector2.zero();
+      return;
+    }
 
     Vector2 direction = destination! - position;
     double distance = direction.length;
@@ -47,12 +52,8 @@ class Player extends SpriteComponent {
       final arrivalPosition = position.clone();
       stopAutoMovement();
       velocity = Vector2.zero();
-      // MyWorldに到達を通知（プレイヤーの現在位置で演出）
-      if (parent != null) {
-        (parent as dynamic).showArrivalEffect?.call(arrivalPosition);
-        (parent as dynamic).clearDestination?.call();
-        (parent as dynamic).setRandomDestination?.call();
-      }
+      // 到達イベントを通知
+      eventCallbacks?.onPlayerArrival(arrivalPosition);
     }
 
     // 移動処理
