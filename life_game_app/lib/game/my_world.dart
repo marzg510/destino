@@ -7,12 +7,14 @@ import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
 import '../interfaces/player_events.dart';
 import '../constants/game_constants.dart';
+import '../managers/audio_manager.dart';
 
 class MyWorld extends World implements PlayerEventCallbacks {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
   bool _isPaused = false;
+  final AudioManager _audioManager = AudioManager();
 
   // タイルキャッシュ
   final Map<String, BackgroundTile> _tiles = {};
@@ -190,6 +192,8 @@ class MyWorld extends World implements PlayerEventCallbacks {
 
   @override
   void onPlayerArrival(Vector2 arrivalPosition) {
+    // 効果音を再生
+    _audioManager.playArrivalSound();
     // 演出を表示
     showArrivalEffect(arrivalPosition);
     // 目的地をクリア
