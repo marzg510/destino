@@ -4,6 +4,7 @@ import '../components/player.dart';
 import '../components/background_tile.dart';
 import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
+import '../components/bloom_effect.dart';
 import '../interfaces/player_events.dart';
 import '../constants/game_constants.dart';
 
@@ -28,7 +29,7 @@ class MyWorld extends World implements PlayerEventCallbacks {
 
     // 初期タイルを生成
     _updateVisibleTiles();
-    
+
     // ゲーム開始時にランダムな目的地を設定
     setRandomDestination();
   }
@@ -133,7 +134,8 @@ class MyWorld extends World implements PlayerEventCallbacks {
 
     // ランダムな角度と距離を生成
     final angle = _random.nextDouble() * 2 * pi;
-    final distance = minDistance + _random.nextDouble() * (maxDistance - minDistance);
+    final distance =
+        minDistance + _random.nextDouble() * (maxDistance - minDistance);
 
     // 極座標から直交座標に変換
     final randomTarget = Vector2(
@@ -164,6 +166,11 @@ class MyWorld extends World implements PlayerEventCallbacks {
   void showArrivalEffect(Vector2 position) {
     final effect = ArrivalEffect(effectPosition: position);
     add(effect);
+    // 目的地到達時に花エフェクトを追加
+    final offset = Vector2(20, 10);
+    final bloomPosition = position + offset;
+    final bloomEffect = BloomEffect(effectPosition: bloomPosition);
+    add(bloomEffect);
   }
 
   void togglePause() {
