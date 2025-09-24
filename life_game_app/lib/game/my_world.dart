@@ -27,6 +27,7 @@ class MyWorld extends World implements PlayerEventCallbacks {
   Future<void> onLoad() async {
     player = Player(position: Vector2.zero());
     player.eventCallbacks = this; // コールバックを設定
+    player.priority = 100; // プレイヤーを最前面に表示
     add(player);
 
     // 初期タイルを生成
