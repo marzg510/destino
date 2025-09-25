@@ -1,13 +1,15 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import '../components/player.dart';
-import '../components/background_tile.dart';
+// import '../components/background_tile.dart';
+import '../components/terrain_tile.dart';
 import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
 import '../interfaces/player_events.dart';
 import '../constants/game_constants.dart';
 import '../managers/audio_manager.dart';
+import '../generators/terrain_generator.dart';
 
 class MyWorld extends World implements PlayerEventCallbacks {
   late Player player;
@@ -15,9 +17,11 @@ class MyWorld extends World implements PlayerEventCallbacks {
   final Random _random = Random();
   bool _isPaused = false;
   final AudioManager _audioManager = AudioManager();
+  final TerrainGenerator _terrainGenerator = TerrainGenerator();
 
   // タイルキャッシュ
-  final Map<String, BackgroundTile> _tiles = {};
+  // final Map<String, BackgroundTile> _tiles = {};
+  final Map<String, TerrainTile> _tiles = {};
 
   // 最適化: 前回のプレイヤーのタイル位置を記録
   int _lastPlayerTileX = 0;
@@ -86,13 +90,30 @@ class MyWorld extends World implements PlayerEventCallbacks {
         visibleTiles.add(key);
 
         if (!_tiles.containsKey(key)) {
-          final tile = BackgroundTile(
+          // 地形を生成または取得
+          final terrainType = _terrainGenerator.terrainMap.hasTerrain(i, j)
+              ? _terrainGenerator.terrainMap.getTerrain(i, j)
+              : _terrainGenerator.generateTerrainAt(i, j);
+
+          // 地形データを保存
+          _terrainGenerator.terrainMap.setTerrain(i, j, terrainType);
+
+          // final tile = BackgroundTile(
+          //   position: Vector2(
+          //     i * GameConstants.tileSize,
+          //     j * GameConstants.tileSize,
+          //   ),
+          //   gridX: i,
+          //   gridY: j,
+          // );
+          final tile = TerrainTile(
             position: Vector2(
               i * GameConstants.tileSize,
               j * GameConstants.tileSize,
             ),
             gridX: i,
             gridY: j,
+            terrainType: terrainType,
           );
           _tiles[key] = tile;
           add(tile);
