@@ -226,12 +226,7 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
 
   void _onResume() {
     _isPaused = false;
-    // 再開時は既存の目的地があれば再開、なければ新しい目的地を設定
-    if (destinationMarker != null) {
-      player.startAutoMovement();
-    } else {
-      setRandomDestination();
-    }
+    player.startAutoMovement();
   }
 
   @override
