@@ -234,20 +234,6 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     }
   }
 
-  // 後方互換性のため残す（将来的に削除可能）
-  void onPause() => _onPause();
-  void onResume() => _onResume();
-
-  // TODO: 削除可能か確認
-  void togglePause() {
-    _isPaused = !_isPaused;
-    if (_isPaused) {
-      onPause();
-    } else {
-      onResume();
-    }
-  }
-
   @override
   void onPlayerArrival(Vector2 arrivalPosition) {
     // 効果音を再生
