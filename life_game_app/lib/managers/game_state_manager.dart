@@ -2,7 +2,7 @@ import 'package:life_game_app/enums/game_state.dart';
 import 'package:life_game_app/interfaces/game_state_listener.dart';
 
 class GameStateManager {
-  GameState _currentState = GameState.title;
+  GameState _currentState = GameState.loading;
   final List<GameStateListener> _listeners = [];
 
   static const Map<GameState, Set<GameState>> _allowedTransitions = {
