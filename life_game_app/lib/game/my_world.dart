@@ -7,11 +7,13 @@ import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
 import '../interfaces/player_events.dart';
+import '../interfaces/game_state_listener.dart';
 import '../constants/game_constants.dart';
 import '../managers/audio_manager.dart';
+import '../enums/game_state.dart';
 import '../generators/terrain_generator.dart';
 
-class MyWorld extends World implements PlayerEventCallbacks {
+class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
@@ -44,6 +46,11 @@ class MyWorld extends World implements PlayerEventCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
+
+    // paused状態ではゲームロジックの更新をスキップ
+    if (_isPaused) {
+      return;
+    }
 
     // プレイヤーの現在のタイル座標を計算
     final currentTileX = (player.position.x / GameConstants.tileSize).floor();
@@ -197,19 +204,29 @@ class MyWorld extends World implements PlayerEventCallbacks {
     add(bloomEffect);
   }
 
-  void togglePause() {
-    _isPaused = !_isPaused;
-    if (_isPaused) {
-      // 一時停止時は移動を停止
-      player.stopAutoMovement();
-    } else {
-      // 再開時は既存の目的地があれば再開、なければ新しい目的地を設定
-      if (destinationMarker != null) {
-        player.startAutoMovement();
-      } else {
-        setRandomDestination();
-      }
+  @override
+  void onGameStateChanged(GameState newState) {
+    switch (newState) {
+      case GameState.paused:
+        _onPause();
+        break;
+      case GameState.playing:
+        _onResume();
+        break;
+      default:
+        break;
     }
+  }
+
+  void _onPause() {
+    _isPaused = true;
+    // 一時停止時は移動を停止
+    player.stopAutoMovement();
+  }
+
+  void _onResume() {
+    _isPaused = false;
+    player.startAutoMovement();
   }
 
   @override
