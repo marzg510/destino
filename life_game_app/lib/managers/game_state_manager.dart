@@ -8,7 +8,7 @@ class GameStateManager {
   static const Map<GameState, Set<GameState>> _allowedTransitions = {
     GameState.loading: {GameState.title},
     GameState.title: {GameState.playing, GameState.loading},
-    GameState.playing: {GameState.paused},
+    GameState.playing: {GameState.playing, GameState.paused},
     GameState.paused: {GameState.playing, GameState.title},
   };
 

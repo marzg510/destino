@@ -8,8 +8,23 @@ void main() {
   runApp(const MaterialApp(home: GameScreen()));
 }
 
-class GameScreen extends StatelessWidget {
+class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _GameScreenState();
+  }
+}
+
+class _GameScreenState extends State<GameScreen> {
+  late final MyGame game;
+
+  @override
+  void initState() {
+    super.initState();
+    game = MyGame();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +36,9 @@ class GameScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       // ハンバーガーメニュー
-      drawer: const GameMenuDrawer(),
+      drawer: GameMenuDrawer(game: game),
       // ゲーム本体
-      body: GameWidget(game: MyGame()),
+      body: GameWidget(game: game),
     );
   }
 }
