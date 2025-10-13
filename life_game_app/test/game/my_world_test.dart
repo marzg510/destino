@@ -199,7 +199,6 @@ void main() {
       // プレイヤーが目的地に向かって移動している
       expect(myWorld.player.velocity, isNot(Vector2.zero()));
     });
-    testWithFlameGame('resetで目的地到達回数がリセットされる', (game) async {});
     testWithFlameGame('resetで目的地到達回数がリセットされる', (game) async {
       // MyWorldをゲームに追加してロード
       await game.add(myWorld);

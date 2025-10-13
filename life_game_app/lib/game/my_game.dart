@@ -73,7 +73,7 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
     camera.follow(myWorld.player);
 
     // 到達回数オーバーレイを追加
-    final arrivalCounter = ArrivalCounter(world: myWorld);
+    final arrivalCounter = ArrivalCounter(scoreManager: myWorld.scoreManager);
     camera.viewport.add(arrivalCounter);
 
     // MyWorldをリスナーとして登録

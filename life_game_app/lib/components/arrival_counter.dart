@@ -2,18 +2,20 @@ import 'package:flame/components.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/material.dart';
 
-import '../game/my_world.dart';
+import '../managers/score_manager.dart';
 
 /// シンプルな到達回数表示コンポーネント
-/// Camera.viewport に追加して画面に固定表示する想定
+/// `ScoreManager` を受け取り到達回数の変化時のみ表示を更新する
 class ArrivalCounter extends TextComponent {
-  final MyWorld world;
+  final ScoreManager scoreManager;
+  late final VoidCallback _listener;
 
-  ArrivalCounter({required this.world})
+  ArrivalCounter({required this.scoreManager})
     : super(
         position: Vector2(10, 10),
         anchor: Anchor.topLeft,
         priority: 200,
+        text: '到達: 0',
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -21,12 +23,20 @@ class ArrivalCounter extends TextComponent {
             fontWeight: FontWeight.bold,
           ),
         ),
-      );
+      ) {
+    // 通知のコールバック
+    _listener = () {
+      text = '到達: ${scoreManager.arrivalCount}';
+    };
+    scoreManager.arrivalCountListenable.addListener(_listener);
+    // 初期表示
+    text = '到達: ${scoreManager.arrivalCount}';
+  }
 
   @override
-  void update(double dt) {
-    // 毎フレーム最新のカウントを表示
-    text = '到達: ${world.arrivalCount}';
-    super.update(dt);
+  void onRemove() {
+    // リスナーを解除
+    scoreManager.arrivalCountListenable.removeListener(_listener);
+    super.onRemove();
   }
 }
