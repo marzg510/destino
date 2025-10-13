@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/game_constants.dart';
 
 class GameMenuDrawer extends StatelessWidget {
   const GameMenuDrawer({super.key});
@@ -11,15 +12,13 @@ class GameMenuDrawer extends StatelessWidget {
         children: [
           // ドロワーのヘッダー
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  'DESTINO',
+                  GameConstants.gameTitle,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -29,10 +28,7 @@ class GameMenuDrawer extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   'Menu',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
                 ),
               ],
             ),

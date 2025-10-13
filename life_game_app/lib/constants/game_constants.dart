@@ -1,4 +1,7 @@
 class GameConstants {
+  // ゲームの名前
+  static const String gameTitle = 'DESTINO';
+
   // マップサイズの設定
   static const int mapSize = 100; // 100x100タイル = 10,000タイル
   static const double tileSize = 128.0;
