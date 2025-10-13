@@ -4,6 +4,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 import 'my_world.dart';
 import '../components/arrival_counter.dart';
+import '../components/debug_overlay.dart';
 import '../managers/game_state_manager.dart';
 import '../enums/game_state.dart';
 import '../components/title_screen.dart';
@@ -75,6 +76,10 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
     // 到達回数オーバーレイを追加
     final arrivalCounter = ArrivalCounter(scoreManager: myWorld.scoreManager);
     camera.viewport.add(arrivalCounter);
+
+    // デバッグオーバーレイを追加
+    final debugOverlay = DebugOverlay(player: myWorld.player);
+    camera.viewport.add(debugOverlay);
 
     // MyWorldをリスナーとして登録
     stateManager.addListener(myWorld);
