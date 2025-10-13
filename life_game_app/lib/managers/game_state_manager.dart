@@ -5,13 +5,6 @@ class GameStateManager {
   GameState _currentState = GameState.loading;
   final List<GameStateListener> _listeners = [];
 
-  static const Map<GameState, Set<GameState>> _allowedTransitions = {
-    GameState.loading: {GameState.title},
-    GameState.title: {GameState.playing, GameState.loading},
-    GameState.playing: {GameState.paused},
-    GameState.paused: {GameState.playing, GameState.title},
-  };
-
   void addListener(GameStateListener listener) {
     _listeners.add(listener);
   }
@@ -20,16 +13,7 @@ class GameStateManager {
     _listeners.remove(listener);
   }
 
-  bool _canTransitionTo(GameState newState) {
-    return _allowedTransitions[_currentState]?.contains(newState) ?? false;
-  }
-
   void setState(GameState newState) {
-    if (!_canTransitionTo(newState)) {
-      throw Exception(
-        'Invalid state transition from $_currentState to $newState',
-      );
-    }
     _currentState = newState;
 
     // リスナーに通知

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:life_game_app/game/my_game.dart';
 import '../constants/game_constants.dart';
 
 class GameMenuDrawer extends StatelessWidget {
-  const GameMenuDrawer({super.key});
+  final MyGame game;
+
+  const GameMenuDrawer({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +41,8 @@ class GameMenuDrawer extends StatelessWidget {
             leading: Icon(Icons.home),
             title: Text('ゲームリセット'),
             onTap: () {
-              // 処理を追加
+              game.resetGame();
+              Navigator.of(context).pop(); // メニューを閉じる
             },
           ),
         ],

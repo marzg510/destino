@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flame/components.dart';
+import 'package:flutter/foundation.dart';
 import '../components/player.dart';
-// import '../components/background_tile.dart';
 import '../components/terrain_tile.dart';
 import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
@@ -22,7 +22,6 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   final TerrainGenerator _terrainGenerator = TerrainGenerator();
 
   // タイルキャッシュ
-  // final Map<String, BackgroundTile> _tiles = {};
   final Map<String, TerrainTile> _tiles = {};
 
   // 最適化: 前回のプレイヤーのタイル位置を記録
@@ -240,4 +239,28 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     // 新しい目的地を設定
     setRandomDestination();
   }
+
+  void reset() {
+    // プレイヤーを初期位置にリセット
+    player.position = Vector2.zero();
+    player.startAutoMovement();
+
+    // タイルを画面から削除
+    for (final tile in _tiles.values) {
+      tile.removeFromParent();
+    }
+    // キャッシュをクリア
+    _tiles.clear();
+
+    // 初期タイルを再生成
+    _updateVisibleTiles();
+
+    // 新しい目的地を設定
+    clearDestination();
+    setRandomDestination();
+  }
+
+  // テスト用getter
+  @visibleForTesting
+  int get tileCount => _tiles.length;
 }

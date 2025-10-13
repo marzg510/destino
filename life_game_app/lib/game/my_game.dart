@@ -77,4 +77,9 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
     // ゲーム開始（playing状態にする）
     stateManager.setState(GameState.playing);
   }
+
+  void resetGame() {
+    myWorld.reset();
+    stateManager.setState(GameState.playing);
+  }
 }
