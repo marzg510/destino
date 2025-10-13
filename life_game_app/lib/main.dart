@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flame/game.dart';
-import 'game/my_game.dart';
+import 'screens/game_screen.dart';
 
 void main() {
-  runApp(MaterialApp(home: GameWidget(game: MyGame())));
+  runApp(const MaterialApp(home: GameScreen()));
 }
