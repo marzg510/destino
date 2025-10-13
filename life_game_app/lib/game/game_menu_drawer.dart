@@ -33,15 +33,14 @@ class GameMenuDrawer extends StatelessWidget {
               ],
             ),
           ),
-          // メニュー項目はここに追加してください
-          // 例:
-          // ListTile(
-          //   leading: Icon(Icons.home),
-          //   title: Text('タイトルに戻る'),
-          //   onTap: () {
-          //     // 処理を追加
-          //   },
-          // ),
+          // メニュー項目
+          ListTile(
+            leading: Icon(Icons.home),
+            title: Text('ゲームリセット'),
+            onTap: () {
+              // 処理を追加
+            },
+          ),
         ],
       ),
     );
