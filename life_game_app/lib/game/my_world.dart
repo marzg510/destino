@@ -20,6 +20,8 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   bool _isPaused = false;
   final AudioManager _audioManager = AudioManager();
   final TerrainGenerator _terrainGenerator = TerrainGenerator();
+  // 到達回数を管理する
+  int arrivalCount = 0;
 
   // タイルキャッシュ
   final Map<String, TerrainTile> _tiles = {};
@@ -234,6 +236,8 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     _audioManager.playArrivalSound();
     // 演出を表示
     showArrivalEffect(arrivalPosition);
+    // 到達回数を増やす
+    arrivalCount += 1;
     // 目的地をクリア
     clearDestination();
     // 新しい目的地を設定
@@ -258,6 +262,8 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     // 新しい目的地を設定
     clearDestination();
     setRandomDestination();
+    // 到達回数をリセット
+    arrivalCount = 0;
   }
 
   // テスト用getter
