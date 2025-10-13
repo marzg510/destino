@@ -10,6 +10,7 @@ import '../interfaces/player_events.dart';
 import '../interfaces/game_state_listener.dart';
 import '../constants/game_constants.dart';
 import '../managers/audio_manager.dart';
+import '../managers/score_manager.dart';
 import '../enums/game_state.dart';
 import '../generators/terrain_generator.dart';
 
@@ -20,6 +21,13 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   bool _isPaused = false;
   final AudioManager _audioManager = AudioManager();
   final TerrainGenerator _terrainGenerator = TerrainGenerator();
+  // スコア管理（到達回数など）
+  final ScoreManager scoreManager = ScoreManager();
+
+  // 公開用 getter/proxy
+  int get arrivalCount => scoreManager.arrivalCount;
+  ValueListenable<int> get arrivalListenable =>
+      scoreManager.arrivalCountListenable;
 
   // タイルキャッシュ
   final Map<String, TerrainTile> _tiles = {};
@@ -234,6 +242,8 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     _audioManager.playArrivalSound();
     // 演出を表示
     showArrivalEffect(arrivalPosition);
+    // 到達回数を増やす
+    scoreManager.incrementArrivalCount();
     // 目的地をクリア
     clearDestination();
     // 新しい目的地を設定
@@ -258,6 +268,8 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     // 新しい目的地を設定
     clearDestination();
     setRandomDestination();
+    // 到達回数をリセット
+    scoreManager.resetArrivalCount();
   }
 
   // テスト用getter
