@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import '../constants/game_constants.dart';
 
 class TitleScreen extends PositionComponent {
   TitleScreen({super.position, super.size});
@@ -8,7 +9,7 @@ class TitleScreen extends PositionComponent {
   Future<void> onLoad() async {
     // タイトルテキスト
     final titleText = TextComponent(
-      text: 'DESTINO',
+      text: GameConstants.gameTitle,
       textRenderer: TextPaint(
         style: const TextStyle(
           fontSize: 64,
