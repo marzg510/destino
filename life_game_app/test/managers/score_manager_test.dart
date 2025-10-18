@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:life_game_app/managers/score_manager.dart';
+import 'package:life_game_app/src/managers/score_manager.dart';
 
 void main() {
   late ScoreManager scoreManager;

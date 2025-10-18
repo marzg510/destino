@@ -7,7 +7,7 @@ class BackgroundTile extends RectangleComponent with HasGameReference {
   final int gridY;
 
   BackgroundTile({super.position, required this.gridX, required this.gridY})
-      : super(size: Vector2.all(GameConstants.tileSize), anchor: Anchor.center);
+    : super(size: Vector2.all(GameConstants.tileSize), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

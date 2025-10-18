@@ -1,8 +1,8 @@
 import 'package:flame/components.dart';
 import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:life_game_app/game/my_world.dart';
-import 'package:life_game_app/enums/game_state.dart';
+import 'package:life_game_app/src/game/my_world.dart';
+import 'package:life_game_app/src/game/game_state.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
