@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../constants/game_constants.dart';
+import '../config.dart';
 import '../terrain/terrain_type.dart';
 
 class TerrainTile extends SpriteComponent with HasGameReference {
@@ -13,7 +13,7 @@ class TerrainTile extends SpriteComponent with HasGameReference {
     required this.gridX,
     required this.gridY,
     required this.terrainType,
-  }) : super(size: Vector2.all(GameConstants.tileSize), anchor: Anchor.center);
+  }) : super(size: Vector2.all(Config.tileSize), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

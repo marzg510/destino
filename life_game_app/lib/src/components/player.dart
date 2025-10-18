@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
-import '../constants/game_constants.dart';
+import '../config.dart';
 import '../interfaces/player_events.dart';
 
 class Player extends SpriteComponent {
@@ -10,7 +10,7 @@ class Player extends SpriteComponent {
   PlayerEventCallbacks? eventCallbacks;
 
   Player({super.position})
-    : super(size: Vector2.all(GameConstants.playerSize), anchor: Anchor.center);
+    : super(size: Vector2.all(Config.playerSize), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
@@ -43,10 +43,10 @@ class Player extends SpriteComponent {
     double distance = direction.length;
 
     // 目的地の到達判定
-    if (distance > GameConstants.arrivalThreshold) {
+    if (distance > Config.arrivalThreshold) {
       // 正規化された方向ベクトルを計算
       direction.normalize();
-      velocity = direction * GameConstants.playerSpeed;
+      velocity = direction * Config.playerSpeed;
     } else {
       // 目的地に到達
       final arrivalPosition = position.clone();
@@ -60,7 +60,7 @@ class Player extends SpriteComponent {
     final newPosition = position + velocity * dt;
 
     // マップ境界チェック
-    final mapBounds = GameConstants.mapRadius * GameConstants.tileSize;
+    final mapBounds = Config.mapRadius * Config.tileSize;
     final clampedPosition = Vector2(
       newPosition.x.clamp(-mapBounds + size.x / 2, mapBounds - size.x / 2),
       newPosition.y.clamp(-mapBounds + size.y / 2, mapBounds - size.y / 2),

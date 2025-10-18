@@ -8,7 +8,7 @@ import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
 import '../interfaces/player_events.dart';
 import 'game_state_listener.dart';
-import '../constants/game_constants.dart';
+import '../config.dart';
 import '../managers/audio_manager.dart';
 import '../managers/score_manager.dart';
 import 'game_state.dart';
@@ -60,8 +60,8 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     }
 
     // プレイヤーの現在のタイル座標を計算
-    final currentTileX = (player.position.x / GameConstants.tileSize).floor();
-    final currentTileY = (player.position.y / GameConstants.tileSize).floor();
+    final currentTileX = (player.position.x / Config.tileSize).floor();
+    final currentTileY = (player.position.y / Config.tileSize).floor();
 
     // タイル位置が変化した場合のみ可視タイルを更新
     if (currentTileX != _lastPlayerTileX || currentTileY != _lastPlayerTileY) {
@@ -73,25 +73,25 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
 
   void _updateVisibleTiles() {
     // プレイヤーの現在位置からタイル座標を計算
-    final playerTileX = (player.position.x / GameConstants.tileSize).round();
-    final playerTileY = (player.position.y / GameConstants.tileSize).round();
+    final playerTileX = (player.position.x / Config.tileSize).round();
+    final playerTileY = (player.position.y / Config.tileSize).round();
 
     // 現在表示すべきタイルの範囲
-    final minX = (playerTileX - GameConstants.renderDistance).clamp(
-      -GameConstants.mapRadius,
-      GameConstants.mapRadius,
+    final minX = (playerTileX - Config.renderDistance).clamp(
+      -Config.mapRadius,
+      Config.mapRadius,
     );
-    final maxX = (playerTileX + GameConstants.renderDistance).clamp(
-      -GameConstants.mapRadius,
-      GameConstants.mapRadius,
+    final maxX = (playerTileX + Config.renderDistance).clamp(
+      -Config.mapRadius,
+      Config.mapRadius,
     );
-    final minY = (playerTileY - GameConstants.renderDistance).clamp(
-      -GameConstants.mapRadius,
-      GameConstants.mapRadius,
+    final minY = (playerTileY - Config.renderDistance).clamp(
+      -Config.mapRadius,
+      Config.mapRadius,
     );
-    final maxY = (playerTileY + GameConstants.renderDistance).clamp(
-      -GameConstants.mapRadius,
-      GameConstants.mapRadius,
+    final maxY = (playerTileY + Config.renderDistance).clamp(
+      -Config.mapRadius,
+      Config.mapRadius,
     );
 
     // 現在表示すべきタイルのセット
@@ -121,10 +121,7 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
           //   gridY: j,
           // );
           final tile = TerrainTile(
-            position: Vector2(
-              i * GameConstants.tileSize,
-              j * GameConstants.tileSize,
-            ),
+            position: Vector2(i * Config.tileSize, j * Config.tileSize),
             gridX: i,
             gridY: j,
             terrainType: terrainType,
@@ -182,7 +179,7 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
     );
 
     // マップ境界内にクランプ
-    final mapBounds = GameConstants.mapRadius * GameConstants.tileSize;
+    final mapBounds = Config.mapRadius * Config.tileSize;
     final clampedTarget = Vector2(
       randomTarget.x.clamp(-mapBounds, mapBounds),
       randomTarget.y.clamp(-mapBounds, mapBounds),
