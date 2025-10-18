@@ -1,13 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../constants/game_constants.dart';
+import '../config.dart';
 
 class BackgroundTile extends RectangleComponent with HasGameReference {
   final int gridX;
   final int gridY;
 
   BackgroundTile({super.position, required this.gridX, required this.gridY})
-    : super(size: Vector2.all(GameConstants.tileSize), anchor: Anchor.center);
+    : super(size: Vector2.all(Config.tileSize), anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {

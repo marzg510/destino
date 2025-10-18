@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_game_app/src/my_game.dart';
-import '../constants/game_constants.dart';
+import '../config.dart';
 
 class GameMenuDrawer extends StatelessWidget {
   final MyGame game;
@@ -21,7 +21,7 @@ class GameMenuDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  GameConstants.gameTitle,
+                  Config.gameTitle,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
