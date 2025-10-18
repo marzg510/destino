@@ -7,12 +7,12 @@ import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
 import '../interfaces/player_events.dart';
-import '../interfaces/game_state_listener.dart';
+import 'game_state_listener.dart';
 import '../constants/game_constants.dart';
 import '../managers/audio_manager.dart';
 import '../managers/score_manager.dart';
-import '../enums/game_state.dart';
-import '../generators/terrain_generator.dart';
+import 'game_state.dart';
+import '../terrain/terrain_generator.dart';
 
 class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   late Player player;

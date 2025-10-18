@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../constants/game_constants.dart';
-import '../enums/terrain_type.dart';
+import '../terrain/terrain_type.dart';
 
 class TerrainTile extends SpriteComponent with HasGameReference {
   final int gridX;

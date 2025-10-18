@@ -1,4 +1,4 @@
-import '../enums/terrain_type.dart';
+import 'terrain_type.dart';
 
 class TerrainData {
   final int gridX;

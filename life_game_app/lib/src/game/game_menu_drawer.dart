@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:life_game_app/game/my_game.dart';
+import 'package:life_game_app/src/my_game.dart';
 import '../constants/game_constants.dart';
 
 class GameMenuDrawer extends StatelessWidget {

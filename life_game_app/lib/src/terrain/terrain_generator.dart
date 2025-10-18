@@ -1,6 +1,6 @@
 import 'dart:math';
-import '../enums/terrain_type.dart';
-import '../data/terrain_data.dart';
+import 'terrain_type.dart';
+import 'terrain_data.dart';
 
 class TerrainGenerator {
   final TerrainMap _terrainMap = TerrainMap();

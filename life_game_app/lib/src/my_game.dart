@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
-import 'my_world.dart';
-import '../components/arrival_counter.dart';
-import '../components/debug_overlay.dart';
-import '../managers/game_state_manager.dart';
-import '../enums/game_state.dart';
-import '../components/title_screen.dart';
+import 'game/my_world.dart';
+import 'components/arrival_counter.dart';
+import 'components/debug_overlay.dart';
+import 'game/game_state_manager.dart';
+import 'game/game_state.dart';
+import 'components/title_screen.dart';
 
 class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
   late MyWorld myWorld;

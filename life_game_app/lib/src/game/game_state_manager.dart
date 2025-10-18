@@ -1,5 +1,5 @@
-import 'package:life_game_app/enums/game_state.dart';
-import 'package:life_game_app/interfaces/game_state_listener.dart';
+import 'package:life_game_app/src/game/game_state.dart';
+import 'package:life_game_app/src/game/game_state_listener.dart';
 
 class GameStateManager {
   GameState _currentState = GameState.loading;

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flame/game.dart';
-import 'package:life_game_app/game/my_game.dart';
+import 'package:life_game_app/src/my_game.dart';
 
 void main() {
-  testWidgets('Game widget renders without crashing', (WidgetTester tester) async {
+  testWidgets('Game widget renders without crashing', (
+    WidgetTester tester,
+  ) async {
     final game = MyGame();
     await tester.pumpWidget(
-      MaterialApp(
-        home: GameWidget<MyGame>.controlled(gameFactory: () => game),
-      ),
+      MaterialApp(home: GameWidget<MyGame>.controlled(gameFactory: () => game)),
     );
 
     // 初期レンダリングを実行
