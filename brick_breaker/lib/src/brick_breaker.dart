@@ -10,8 +10,10 @@ import 'package:flutter/services.dart';
 import 'components/components.dart';
 import 'config.dart';
 
+enum PlayState { welcome, playing, gameOver, won }
+
 class BrickBreaker extends FlameGame
-    with HasCollisionDetection, KeyboardEvents {
+    with HasCollisionDetection, KeyboardEvents, TapDetector {
   BrickBreaker()
     : super(
         camera: CameraComponent.withFixedResolution(
@@ -24,6 +26,22 @@ class BrickBreaker extends FlameGame
   double get width => size.x;
   double get height => size.y;
 
+  late PlayState _playState;
+  PlayState get playState => _playState;
+  set playState(PlayState playState) {
+    _playState = playState;
+    switch (playState) {
+      case PlayState.welcome:
+      case PlayState.gameOver:
+      case PlayState.won:
+        overlays.add(playState.name);
+      case PlayState.playing:
+        overlays.remove(PlayState.welcome.name);
+        overlays.remove(PlayState.gameOver.name);
+        overlays.remove(PlayState.won.name);
+    }
+  }
+
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
@@ -31,6 +49,18 @@ class BrickBreaker extends FlameGame
     camera.viewfinder.anchor = Anchor.topLeft;
 
     world.add(PlayArea());
+
+    playState = PlayState.welcome;
+  }
+
+  void startGame() {
+    if (playState == PlayState.playing) return;
+
+    world.removeAll(world.children.query<Ball>());
+    world.removeAll(world.children.query<Bat>());
+    world.removeAll(world.children.query<Brick>());
+
+    playState = PlayState.playing;
 
     world.add(
       Ball(
@@ -52,7 +82,7 @@ class BrickBreaker extends FlameGame
       ),
     );
 
-    await world.addAll([
+    world.addAll([
       for (var i = 0; i < brickColors.length; i++)
         for (var j = 1; j <= 5; j++)
           Brick(
@@ -63,8 +93,12 @@ class BrickBreaker extends FlameGame
             color: brickColors[i],
           ),
     ]);
+  }
 
-    debugMode = true;
+  @override
+  void onTap() {
+    super.onTap();
+    startGame();
   }
 
   @override
@@ -81,4 +115,7 @@ class BrickBreaker extends FlameGame
     }
     return KeyEventResult.handled;
   }
+
+  @override
+  Color backgroundColor() => const Color(0xfff2e8cf);
 }
