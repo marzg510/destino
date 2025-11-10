@@ -2,6 +2,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import '../my_game.dart';
 import 'game_menu_drawer.dart';
+import 'arrival_counter_card.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -32,7 +33,19 @@ class _GameAppState extends State<GameApp> {
         // ハンバーガーメニュー
         drawer: GameMenuDrawer(game: game),
         // ゲーム本体
-        body: GameWidget(game: game),
+        body: Stack(
+          children: [
+            GameWidget(game: game),
+            // 到達回数をオーバーレイ表示（ゲーム中のみ）
+            Positioned(
+              top: 0,
+              left: 0,
+              child: SafeArea(
+                child: ArrivalCounterCard(arrivalCount: game.arrivalCount),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
