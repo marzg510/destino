@@ -1,7 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import '../my_game.dart';
-import '../game/game_state.dart';
 import 'game_menu_drawer.dart';
 import 'arrival_counter_card.dart';
 
