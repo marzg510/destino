@@ -8,14 +8,16 @@ import 'components/debug_overlay.dart';
 import 'game/game_state_manager.dart';
 import 'game/game_state.dart';
 import 'components/title_screen.dart';
+import 'components/player.dart';
 
-class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
+class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   late MyWorld myWorld;
   late TitleScreen titleScreen;
   final GameStateManager stateManager = GameStateManager();
 
   @override
   Future<void> onLoad() async {
+    super.onLoad();
     // タイトル画面を作成
     titleScreen = TitleScreen(
       position: Vector2.zero(),
@@ -27,8 +29,6 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
 
     // 初期状態はtitle
     stateManager.setState(GameState.title);
-
-    return super.onLoad();
   }
 
   @override
@@ -39,39 +39,44 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, TapCallbacks {
     // タイトル画面またはpaused状態ではキーボード入力を無効化
     if (stateManager.currentState != GameState.title &&
         !stateManager.isPaused) {
-      myWorld.player.handleInput(keysPressed);
+      world.children.query<Player>().first.handleInput(keysPressed);
+      // world.player.handleInput(keysPressed);
     }
     super.onKeyEvent(event, keysPressed);
     return KeyEventResult.handled;
   }
 
   @override
-  bool onTapDown(TapDownEvent event) {
+  void onTap() {
+    super.onTap();
+
+    debugPrint('Tap detected');
     // タイトル画面でタップしたらゲーム開始
     if (stateManager.currentState == GameState.title) {
-      _startGame();
-      return true;
+      startGame();
     }
 
     // ゲーム中の一時停止/再開の切り替え
     if (stateManager.isPlaying) {
+      debugPrint('StateManager pause');
       stateManager.pause();
     } else if (stateManager.isPaused) {
+      debugPrint('StateManager resume');
       stateManager.resume();
     }
-
-    return true;
   }
 
-  Future<void> _startGame() async {
+  Future<void> startGame() async {
+    if (stateManager.currentState == GameState.playing) return;
+
     // タイトル画面を非表示にする
     titleScreen.removeFromParent();
 
     // MyWorldを作成して表示
     myWorld = MyWorld();
     world = myWorld;
-    await myWorld.loaded;
-    camera.follow(myWorld.player);
+    await world.loaded;
+    camera.follow(world.children.query<Player>().first);
 
     // 到達回数オーバーレイを追加
     final arrivalCounter = ArrivalCounter(scoreManager: myWorld.scoreManager);
