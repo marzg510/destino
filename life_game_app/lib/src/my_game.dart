@@ -11,6 +11,7 @@ import 'components/title_screen.dart';
 import 'components/player.dart';
 
 class MyGame extends FlameGame with KeyboardEvents, TapDetector {
+  late MyWorld myWorld;
   late TitleScreen titleScreen;
   final GameStateManager stateManager = GameStateManager();
 
@@ -72,7 +73,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     titleScreen.removeFromParent();
 
     // MyWorldを作成して表示
-    final myWorld = MyWorld();
+    myWorld = MyWorld();
     world = myWorld;
     await world.loaded;
     camera.follow(world.children.query<Player>().first);
@@ -93,7 +94,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   }
 
   void resetGame() {
-    // world.reset();
+    myWorld.reset();
     stateManager.setState(GameState.playing);
   }
 }
