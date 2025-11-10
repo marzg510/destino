@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 // import 'screens/game_screen.dart';
 import 'package:flame/game.dart';
 import 'src/my_game.dart';
-import 'src/game/game_menu_drawer.dart';
+import 'src/widgets/game_menu_drawer.dart';
+import 'src/widgets/game_app.dart';
 
 void main() {
-  runApp(const MaterialApp(home: GameScreen()));
+  // runApp(const MaterialApp(home: GameScreen()));
+  runApp(const MaterialApp(home: GameApp()));
 }
 
 class GameScreen extends StatefulWidget {
