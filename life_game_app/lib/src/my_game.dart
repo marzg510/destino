@@ -3,7 +3,6 @@ import 'package:flame/game.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 import 'game/my_world.dart';
-import 'components/arrival_counter.dart';
 import 'components/debug_overlay.dart';
 import 'game/game_state_manager.dart';
 import 'game/game_state.dart';
@@ -14,6 +13,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   late MyWorld myWorld;
   late TitleScreen titleScreen;
   final GameStateManager stateManager = GameStateManager();
+  final ValueNotifier<int> arrivalCount = ValueNotifier<int>(0);
 
   @override
   Future<void> onLoad() async {
@@ -77,10 +77,6 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     world = myWorld;
     await world.loaded;
     camera.follow(world.children.query<Player>().first);
-
-    // 到達回数オーバーレイを追加
-    final arrivalCounter = ArrivalCounter(scoreManager: myWorld.scoreManager);
-    camera.viewport.add(arrivalCounter);
 
     // デバッグオーバーレイを追加
     final debugOverlay = DebugOverlay(player: myWorld.player);
