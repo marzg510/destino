@@ -11,14 +11,21 @@ class ArrivalCounterCard extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: arrivalCount,
       builder: (context, count, child) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(12, 6, 12, 18),
-          child: Text(
-            '到達: $count',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+        return Card(
+          color: Colors.blueGrey[800],
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 6, 12, 18),
+            child: Text(
+              '到達: $count',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         );
