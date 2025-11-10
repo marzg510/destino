@@ -10,9 +10,7 @@ import 'game/game_state.dart';
 import 'components/title_screen.dart';
 import 'components/player.dart';
 
-// TODO: 不要なコメント削除
 class MyGame extends FlameGame with KeyboardEvents, TapDetector {
-  // late MyWorld world;
   late TitleScreen titleScreen;
   final GameStateManager stateManager = GameStateManager();
 
@@ -74,21 +72,21 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     titleScreen.removeFromParent();
 
     // MyWorldを作成して表示
-    world = MyWorld();
-    // world = world;
+    final myWorld = MyWorld();
+    world = myWorld;
     await world.loaded;
     camera.follow(world.children.query<Player>().first);
 
     // 到達回数オーバーレイを追加
-    // final arrivalCounter = ArrivalCounter(scoreManager: world.scoreManager);
-    // camera.viewport.add(arrivalCounter);
+    final arrivalCounter = ArrivalCounter(scoreManager: myWorld.scoreManager);
+    camera.viewport.add(arrivalCounter);
 
     // デバッグオーバーレイを追加
-    // final debugOverlay = DebugOverlay(player: world.player);
-    // camera.viewport.add(debugOverlay);
+    final debugOverlay = DebugOverlay(player: myWorld.player);
+    camera.viewport.add(debugOverlay);
 
     // MyWorldをリスナーとして登録
-    // stateManager.addListener(world);
+    stateManager.addListener(myWorld);
 
     // ゲーム開始（playing状態にする）
     stateManager.setState(GameState.playing);
