@@ -74,6 +74,8 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
 
     // MyWorldを作成して表示
     myWorld = MyWorld();
+    // 到達回数更新のコールバックを設定
+    myWorld.onArrivalCountChanged = _incrementArrivalCount;
     world = myWorld;
     await world.loaded;
     camera.follow(world.children.query<Player>().first);
@@ -89,8 +91,13 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     stateManager.setState(GameState.playing);
   }
 
+  void _incrementArrivalCount() {
+    arrivalCount.value = arrivalCount.value + 1;
+  }
+
   void resetGame() {
     myWorld.reset();
+    arrivalCount.value = 0;
     stateManager.setState(GameState.playing);
   }
 }
