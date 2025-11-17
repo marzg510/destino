@@ -2,15 +2,13 @@ import 'package:flame/components.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/material.dart';
 
-import '../managers/score_manager.dart';
-
 /// シンプルな到達回数表示コンポーネント
-/// `ScoreManager` を受け取り到達回数の変化時のみ表示を更新する
+/// `ValueNotifier<int>` を受け取り到達回数の変化時のみ表示を更新する
 class ArrivalCounter extends TextComponent {
-  final ScoreManager scoreManager;
+  final ValueNotifier<int> arrivalCount;
   late final VoidCallback _listener;
 
-  ArrivalCounter({required this.scoreManager})
+  ArrivalCounter({required this.arrivalCount})
     : super(
         position: Vector2(10, 10),
         anchor: Anchor.topLeft,
@@ -26,17 +24,17 @@ class ArrivalCounter extends TextComponent {
       ) {
     // 通知のコールバック
     _listener = () {
-      text = '到達: ${scoreManager.arrivalCount}';
+      text = '到達: ${arrivalCount.value}';
     };
-    scoreManager.arrivalCountListenable.addListener(_listener);
+    arrivalCount.addListener(_listener);
     // 初期表示
-    text = '到達: ${scoreManager.arrivalCount}';
+    text = '到達: ${arrivalCount.value}';
   }
 
   @override
   void onRemove() {
     // リスナーを解除
-    scoreManager.arrivalCountListenable.removeListener(_listener);
+    arrivalCount.removeListener(_listener);
     super.onRemove();
   }
 }

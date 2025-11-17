@@ -199,26 +199,9 @@ void main() {
       // プレイヤーが目的地に向かって移動している
       expect(myWorld.player.velocity, isNot(Vector2.zero()));
     });
-    testWithFlameGame('resetで目的地到達回数がリセットされる', (game) async {
-      // MyWorldをゲームに追加してロード
-      await game.add(myWorld);
-      await game.ready();
-
-      // 初期は0
-      expect(myWorld.arrivalCount, equals(0));
-
-      // 到達イベントを2回発生させる（実際にはプレイヤーの到達で呼ばれる処理）
-      myWorld.onPlayerArrival(Vector2(0, 0));
-      myWorld.onPlayerArrival(Vector2(10, 10));
-
-      // カウントが増えていることを確認
-      expect(myWorld.arrivalCount, equals(2));
-
-      // リセット実行
-      myWorld.reset();
-
-      // 到達回数がリセットされていることを確認
-      expect(myWorld.arrivalCount, equals(0));
-    });
+    // 到達回数の管理はMyGameに移行したため、このテストは削除
+    // testWithFlameGame('resetで目的地到達回数がリセットされる', (game) async {
+    //   ...
+    // });
   });
 }
