@@ -30,22 +30,6 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     _currentState = newState;
   }
 
-  void pause() {
-    pauseEngine();
-    // pause時は移動を停止
-    if (world is MyWorld) {
-      (world as MyWorld).player.stopAutoMovement();
-    }
-  }
-
-  void resume() {
-    resumeEngine();
-    // resume時は移動を再開
-    if (world is MyWorld) {
-      (world as MyWorld).player.startAutoMovement();
-    }
-  }
-
   @override
   Future<void> onLoad() async {
     debugMode = true;
@@ -92,10 +76,10 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // ゲーム中の一時停止/再開の切り替え
     if (isPlaying && !paused) {
       debugPrint('pause');
-      pause();
+      pauseEngine();
     } else if (paused) {
       debugPrint('resume');
-      resume();
+      resumeEngine();
     }
   }
 
