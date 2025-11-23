@@ -6,12 +6,11 @@ import '../components/terrain_tile.dart';
 import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
-import 'game_state_listener.dart';
 import '../config.dart';
-import 'game_state.dart';
+import '../my_game.dart';
 import '../terrain/terrain_generator.dart';
 
-class MyWorld extends World implements GameStateListener {
+class MyWorld extends World {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
@@ -196,7 +195,6 @@ class MyWorld extends World implements GameStateListener {
     add(bloomEffect);
   }
 
-  @override
   void onGameStateChanged(GameState newState) {
     switch (newState) {
       case GameState.paused:
