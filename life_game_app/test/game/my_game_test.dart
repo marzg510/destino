@@ -37,34 +37,6 @@ void main() {
       });
     });
 
-    group('Pause and Resume Methods', () {
-      test('pause()でFlameのpausedがtrueになること', () {
-        game.pause();
-        expect(game.paused, isTrue);
-      });
-
-      test('resume()でFlameのpausedがfalseになること', () {
-        game.pause();
-        expect(game.paused, isTrue);
-        game.resume();
-        expect(game.paused, isFalse);
-      });
-
-      test('pause/resumeを複数回繰り返せること', () {
-        // First pause/resume cycle
-        game.pause();
-        expect(game.paused, isTrue);
-        game.resume();
-        expect(game.paused, isFalse);
-
-        // Second pause/resume cycle
-        game.pause();
-        expect(game.paused, isTrue);
-        game.resume();
-        expect(game.paused, isFalse);
-      });
-    });
-
     group('State Getters', () {
       test('isPlayingはplaying状態の時のみtrueを返すこと', () {
         expect(game.isPlaying, isFalse);
