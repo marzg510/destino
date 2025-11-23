@@ -1,3 +1,4 @@
+import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/events.dart';
@@ -8,12 +9,18 @@ import 'game/game_state_manager.dart';
 import 'game/game_state.dart';
 import 'components/title_screen.dart';
 import 'components/player.dart';
+import 'managers/audio_manager.dart';
 
 class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   late MyWorld myWorld;
   late TitleScreen titleScreen;
   final GameStateManager stateManager = GameStateManager();
   final ValueNotifier<int> arrivalCount = ValueNotifier<int>(0);
+  final AudioManager _audioManager = AudioManager();
+
+  @override
+  // ignore: overridden_fields
+  bool debugMode = true;
 
   @override
   Future<void> onLoad() async {
@@ -29,6 +36,8 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
 
     // 初期状態はtitle
     stateManager.setState(GameState.title);
+
+    await add(FpsTextComponent());
   }
 
   @override
@@ -99,5 +108,20 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     myWorld.reset();
     arrivalCount.value = 0;
     stateManager.setState(GameState.playing);
+  }
+
+  void onPlayerArrival(Vector2 arrivalPosition) {
+    debugPrint('Player arrived at $arrivalPosition');
+    // 効果音を再生
+    _audioManager.playArrivalSound();
+    // 演出を表示
+    myWorld.showArrivalEffect(arrivalPosition);
+    // 到達回数を増やす
+    _incrementArrivalCount();
+    // onArrivalCountChanged?.call();
+    // 目的地をクリア
+    myWorld.clearDestination();
+    // 新しい目的地を設定
+    myWorld.setRandomDestination();
   }
 }

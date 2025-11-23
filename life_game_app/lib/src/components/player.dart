@@ -1,9 +1,10 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
+import '../my_game.dart';
 import '../config.dart';
 import '../interfaces/player_events.dart';
 
-class Player extends SpriteComponent {
+class Player extends SpriteComponent with HasGameReference<MyGame> {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
   bool isAutoMovementActive = true;
@@ -53,7 +54,8 @@ class Player extends SpriteComponent {
       stopAutoMovement();
       velocity = Vector2.zero();
       // 到達イベントを通知
-      eventCallbacks?.onPlayerArrival(arrivalPosition);
+      // eventCallbacks?.onPlayerArrival(arrivalPosition);
+      game.onPlayerArrival(arrivalPosition);
     }
 
     // 移動処理
