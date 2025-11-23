@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_game_app/src/game/my_world.dart';
-import 'package:life_game_app/src/game/game_state.dart';
+import 'package:life_game_app/src/my_game.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
