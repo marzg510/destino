@@ -7,14 +7,12 @@ import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
 import '../config.dart';
-import '../my_game.dart';
 import '../terrain/terrain_generator.dart';
 
 class MyWorld extends World {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
-  bool _isPaused = false;
   final TerrainGenerator _terrainGenerator = TerrainGenerator();
 
   // タイルキャッシュ
@@ -40,11 +38,6 @@ class MyWorld extends World {
   @override
   void update(double dt) {
     super.update(dt);
-
-    // paused状態ではゲームロジックの更新をスキップ
-    if (_isPaused) {
-      return;
-    }
 
     // プレイヤーの現在のタイル座標を計算
     final currentTileX = (player.position.x / Config.tileSize).floor();
@@ -193,30 +186,6 @@ class MyWorld extends World {
     final bloomPosition = position + offset;
     final bloomEffect = BloomEffect(effectPosition: bloomPosition);
     add(bloomEffect);
-  }
-
-  void onGameStateChanged(GameState newState) {
-    switch (newState) {
-      case GameState.paused:
-        _onPause();
-        break;
-      case GameState.playing:
-        _onResume();
-        break;
-      default:
-        break;
-    }
-  }
-
-  void _onPause() {
-    _isPaused = true;
-    // 一時停止時は移動を停止
-    player.stopAutoMovement();
-  }
-
-  void _onResume() {
-    _isPaused = false;
-    player.startAutoMovement();
   }
 
   void reset() {
