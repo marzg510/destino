@@ -45,10 +45,8 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // タイトル画面またはpaused状態ではキーボード入力を無効化
     if (stateManager.currentState != GameState.title &&
         !stateManager.isPaused) {
-      final players = world.children.query<Player>();
-      if (players.isNotEmpty) {
-        players.first.handleInput(keysPressed);
-      }
+      final MyWorld myWorld = world as MyWorld;
+      myWorld.player.handleInput(keysPressed);
     }
     super.onKeyEvent(event, keysPressed);
     return KeyEventResult.handled;
