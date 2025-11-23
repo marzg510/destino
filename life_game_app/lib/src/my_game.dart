@@ -13,7 +13,6 @@ enum GameState {
   loading, // ローディング
   title, // タイトル
   playing, // プレイ中
-  paused, // 一時停止
 }
 
 class MyGame extends FlameGame with KeyboardEvents, TapDetector {
@@ -26,21 +25,9 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   // GameState管理
   GameState get currentState => _currentState;
   bool get isPlaying => _currentState == GameState.playing;
-  bool get isPaused => _currentState == GameState.paused;
 
   void setState(GameState newState) {
     _currentState = newState;
-    _notifyStateChange(newState);
-  }
-
-  void pause() => setState(GameState.paused);
-  void resume() => setState(GameState.playing);
-
-  void _notifyStateChange(GameState newState) {
-    // MyWorldが存在する場合のみ通知
-    if (world is MyWorld) {
-      (world as MyWorld).onGameStateChanged(newState);
-    }
   }
 
   @override
@@ -68,7 +55,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     Set<LogicalKeyboardKey> keysPressed,
   ) {
     // タイトル画面またはpaused状態ではキーボード入力を無効化
-    if (currentState != GameState.title && !isPaused) {
+    if (currentState != GameState.title && !paused) {
       final MyWorld myWorld = world as MyWorld;
       myWorld.player.handleInput(keysPressed);
     }
@@ -87,12 +74,12 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     }
 
     // ゲーム中の一時停止/再開の切り替え
-    if (isPlaying) {
+    if (isPlaying && !paused) {
       debugPrint('pause');
-      pause();
-    } else if (isPaused) {
+      pauseEngine();
+    } else if (paused) {
       debugPrint('resume');
-      resume();
+      resumeEngine();
     }
   }
 

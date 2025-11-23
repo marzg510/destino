@@ -18,8 +18,8 @@ void main() {
         expect(game.isPlaying, isFalse);
       });
 
-      test('初期状態ではisPausedがfalseであること', () {
-        expect(game.isPaused, isFalse);
+      test('初期状態ではpausedがfalseであること', () {
+        expect(game.paused, isFalse);
       });
     });
 
@@ -32,42 +32,36 @@ void main() {
         expect(game.currentState, equals(GameState.playing));
         expect(game.isPlaying, isTrue);
 
-        game.setState(GameState.paused);
-        expect(game.currentState, equals(GameState.paused));
-        expect(game.isPaused, isTrue);
-
         game.setState(GameState.loading);
         expect(game.currentState, equals(GameState.loading));
       });
     });
 
     group('Pause and Resume Methods', () {
-      test('pause()でpaused状態になること', () {
+      test('pause()でFlameのpausedがtrueになること', () {
         game.pause();
-        expect(game.currentState, equals(GameState.paused));
-        expect(game.isPaused, isTrue);
-        expect(game.isPlaying, isFalse);
+        expect(game.paused, isTrue);
       });
 
-      test('resume()でplaying状態になること', () {
+      test('resume()でFlameのpausedがfalseになること', () {
+        game.pause();
+        expect(game.paused, isTrue);
         game.resume();
-        expect(game.currentState, equals(GameState.playing));
-        expect(game.isPlaying, isTrue);
-        expect(game.isPaused, isFalse);
+        expect(game.paused, isFalse);
       });
 
       test('pause/resumeを複数回繰り返せること', () {
         // First pause/resume cycle
         game.pause();
-        expect(game.isPaused, isTrue);
+        expect(game.paused, isTrue);
         game.resume();
-        expect(game.isPlaying, isTrue);
+        expect(game.paused, isFalse);
 
         // Second pause/resume cycle
         game.pause();
-        expect(game.isPaused, isTrue);
+        expect(game.paused, isTrue);
         game.resume();
-        expect(game.isPlaying, isTrue);
+        expect(game.paused, isFalse);
       });
     });
 
@@ -78,24 +72,8 @@ void main() {
         game.setState(GameState.playing);
         expect(game.isPlaying, isTrue);
 
-        game.setState(GameState.paused);
-        expect(game.isPlaying, isFalse);
-
         game.setState(GameState.title);
         expect(game.isPlaying, isFalse);
-      });
-
-      test('isPausedはpaused状態の時のみtrueを返すこと', () {
-        expect(game.isPaused, isFalse);
-
-        game.setState(GameState.playing);
-        expect(game.isPaused, isFalse);
-
-        game.setState(GameState.paused);
-        expect(game.isPaused, isTrue);
-
-        game.setState(GameState.title);
-        expect(game.isPaused, isFalse);
       });
 
       test('currentStateは常に現在の状態を返すこと', () {
@@ -106,9 +84,6 @@ void main() {
 
         game.setState(GameState.playing);
         expect(game.currentState, equals(GameState.playing));
-
-        game.setState(GameState.paused);
-        expect(game.currentState, equals(GameState.paused));
       });
     });
   });
