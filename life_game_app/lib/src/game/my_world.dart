@@ -6,23 +6,17 @@ import '../components/terrain_tile.dart';
 import '../components/destination_marker.dart';
 import '../components/arrival_effect.dart';
 import '../components/bloom_effect.dart';
-import '../interfaces/player_events.dart';
 import 'game_state_listener.dart';
 import '../config.dart';
-import '../managers/audio_manager.dart';
 import 'game_state.dart';
 import '../terrain/terrain_generator.dart';
 
-class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
+class MyWorld extends World implements GameStateListener {
   late Player player;
   DestinationMarker? destinationMarker;
   final Random _random = Random();
   bool _isPaused = false;
-  final AudioManager _audioManager = AudioManager();
   final TerrainGenerator _terrainGenerator = TerrainGenerator();
-
-  // 到達回数の更新を通知するコールバック
-  void Function()? onArrivalCountChanged;
 
   // タイルキャッシュ
   final Map<String, TerrainTile> _tiles = {};
@@ -34,7 +28,6 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   @override
   Future<void> onLoad() async {
     player = Player(position: Vector2.zero());
-    player.eventCallbacks = this; // コールバックを設定
     player.priority = 100; // プレイヤーを最前面に表示
     add(player);
 
@@ -226,20 +219,6 @@ class MyWorld extends World implements PlayerEventCallbacks, GameStateListener {
   void _onResume() {
     _isPaused = false;
     player.startAutoMovement();
-  }
-
-  @override
-  void onPlayerArrival(Vector2 arrivalPosition) {
-    // 効果音を再生
-    _audioManager.playArrivalSound();
-    // 演出を表示
-    showArrivalEffect(arrivalPosition);
-    // 到達回数を増やす（MyGameにコールバック）
-    onArrivalCountChanged?.call();
-    // 目的地をクリア
-    clearDestination();
-    // 新しい目的地を設定
-    setRandomDestination();
   }
 
   void reset() {

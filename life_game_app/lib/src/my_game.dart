@@ -19,11 +19,8 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   final AudioManager _audioManager = AudioManager();
 
   @override
-  // ignore: overridden_fields
-  bool debugMode = true;
-
-  @override
   Future<void> onLoad() async {
+    debugMode = true;
     super.onLoad();
     // タイトル画面を作成
     titleScreen = TitleScreen(
@@ -37,7 +34,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // 初期状態はtitle
     stateManager.setState(GameState.title);
 
-    await add(FpsTextComponent());
+    await add(FpsTextComponent(position: Vector2(10, 100)));
   }
 
   @override
@@ -48,8 +45,10 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // タイトル画面またはpaused状態ではキーボード入力を無効化
     if (stateManager.currentState != GameState.title &&
         !stateManager.isPaused) {
-      world.children.query<Player>().first.handleInput(keysPressed);
-      // world.player.handleInput(keysPressed);
+      final players = world.children.query<Player>();
+      if (players.isNotEmpty) {
+        players.first.handleInput(keysPressed);
+      }
     }
     super.onKeyEvent(event, keysPressed);
     return KeyEventResult.handled;
@@ -83,11 +82,12 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
 
     // MyWorldを作成して表示
     myWorld = MyWorld();
-    // 到達回数更新のコールバックを設定
-    myWorld.onArrivalCountChanged = _incrementArrivalCount;
     world = myWorld;
     await world.loaded;
-    camera.follow(world.children.query<Player>().first);
+    final players = world.children.query<Player>();
+    if (players.isNotEmpty) {
+      camera.follow(players.first);
+    }
 
     // デバッグオーバーレイを追加
     final debugOverlay = DebugOverlay(player: myWorld.player);
@@ -98,10 +98,6 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
 
     // ゲーム開始（playing状態にする）
     stateManager.setState(GameState.playing);
-  }
-
-  void _incrementArrivalCount() {
-    arrivalCount.value = arrivalCount.value + 1;
   }
 
   void resetGame() {
@@ -117,8 +113,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // 演出を表示
     myWorld.showArrivalEffect(arrivalPosition);
     // 到達回数を増やす
-    _incrementArrivalCount();
-    // onArrivalCountChanged?.call();
+    arrivalCount.value = arrivalCount.value + 1;
     // 目的地をクリア
     myWorld.clearDestination();
     // 新しい目的地を設定
