@@ -15,8 +15,9 @@ enum GameState {
   playing, // プレイ中
 }
 
-class MyGame extends FlameGame with KeyboardEvents, TapDetector {
-  late MyWorld myWorld;
+class MyGame extends FlameGame<MyWorld> with KeyboardEvents, TapDetector {
+  MyGame() : super(world: MyWorld());
+
   late TitleScreen titleScreen;
   GameState _currentState = GameState.loading;
   final ValueNotifier<int> arrivalCount = ValueNotifier<int>(0);
@@ -56,8 +57,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   ) {
     // タイトル画面またはpaused状態ではキーボード入力を無効化
     if (currentState != GameState.title && !paused) {
-      final MyWorld myWorld = world as MyWorld;
-      myWorld.player.handleInput(keysPressed);
+      world.player.handleInput(keysPressed);
     }
     super.onKeyEvent(event, keysPressed);
     return KeyEventResult.handled;
@@ -89,9 +89,6 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // タイトル画面を非表示にする
     titleScreen.removeFromParent();
 
-    // MyWorldを作成して表示
-    myWorld = MyWorld();
-    world = myWorld;
     await world.loaded;
     final players = world.children.query<Player>();
     if (players.isNotEmpty) {
@@ -99,7 +96,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     }
 
     // デバッグオーバーレイを追加
-    final debugOverlay = DebugOverlay(player: myWorld.player);
+    final debugOverlay = DebugOverlay(player: world.player);
     camera.viewport.add(debugOverlay);
 
     // ゲーム開始（playing状態にする）
@@ -107,7 +104,7 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
   }
 
   void resetGame() {
-    myWorld.reset();
+    world.reset();
     arrivalCount.value = 0;
     setState(GameState.playing);
   }
@@ -117,12 +114,12 @@ class MyGame extends FlameGame with KeyboardEvents, TapDetector {
     // 効果音を再生
     _audioManager.playArrivalSound();
     // 演出を表示
-    myWorld.showArrivalEffect(arrivalPosition);
+    world.showArrivalEffect(arrivalPosition);
     // 到達回数を増やす
     arrivalCount.value = arrivalCount.value + 1;
     // 目的地をクリア
-    myWorld.clearDestination();
+    world.clearDestination();
     // 新しい目的地を設定
-    myWorld.setRandomDestination();
+    world.setRandomDestination();
   }
 }
