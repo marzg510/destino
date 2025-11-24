@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
+
 import 'game/my_world.dart';
 import 'components/debug_overlay.dart';
 import 'components/title_screen.dart';
@@ -15,7 +16,8 @@ enum GameState {
   playing, // プレイ中
 }
 
-class MyGame extends FlameGame<MyWorld> with KeyboardEvents, TapDetector {
+class MyGame extends FlameGame<MyWorld>
+    with HasCollisionDetection, KeyboardEvents, TapDetector {
   MyGame() : super(world: MyWorld());
 
   late TitleScreen titleScreen;
@@ -33,7 +35,6 @@ class MyGame extends FlameGame<MyWorld> with KeyboardEvents, TapDetector {
 
   @override
   Future<void> onLoad() async {
-    debugMode = true;
     super.onLoad();
     // タイトル画面を作成
     titleScreen = TitleScreen(
@@ -56,9 +57,9 @@ class MyGame extends FlameGame<MyWorld> with KeyboardEvents, TapDetector {
     Set<LogicalKeyboardKey> keysPressed,
   ) {
     // タイトル画面またはpaused状態ではキーボード入力を無効化
-    if (currentState != GameState.title && !paused) {
-      world.player.handleInput(keysPressed);
-    }
+    // if (currentState != GameState.title && !paused) {
+    //   world.player.handleInput(keysPressed);
+    // }
     super.onKeyEvent(event, keysPressed);
     return KeyEventResult.handled;
   }
