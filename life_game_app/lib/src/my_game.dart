@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
+import 'package:life_game_app/src/terrain/terrain_type.dart';
 
 import 'game/my_world.dart';
 import 'components/debug_overlay.dart';
@@ -35,6 +36,12 @@ class MyGame extends FlameGame<MyWorld>
 
   @override
   Future<void> onLoad() async {
+    await images.loadAll([
+      'walk_boy_walk.png',
+      TerrainType.grassland.spritePath,
+      TerrainType.mountain.spritePath,
+      TerrainType.ocean.spritePath,
+    ]);
     super.onLoad();
     // タイトル画面を作成
     titleScreen = TitleScreen(

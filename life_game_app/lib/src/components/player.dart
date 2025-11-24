@@ -18,7 +18,8 @@ class Player extends SpriteComponent
 
   @override
   Future<void> onLoad() async {
-    sprite = await Sprite.load('walk_boy_walk.png');
+    final image = game.images.fromCache('walk_boy_walk.png');
+    sprite = Sprite(image);
     add(CircleHitbox());
   }
 
