@@ -35,7 +35,12 @@ class MyGame extends FlameGame<MyWorld>
 
   @override
   Future<void> onLoad() async {
-    super.onLoad();
+    await images.loadAll([
+      'walk_boy_walk.png',
+      'terrain/grassland.png',
+      'terrain/mountain.png',
+      'terrain/ocean.png',
+    ]);
     // タイトル画面を作成
     titleScreen = TitleScreen(
       position: Vector2.zero(),

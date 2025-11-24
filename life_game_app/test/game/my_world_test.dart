@@ -2,18 +2,16 @@ import 'package:flame/components.dart';
 import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_game_app/src/game/my_world.dart';
+import 'package:life_game_app/src/my_game.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  final myGameTester = FlameTester(() => MyGame());
+
   group('MyWorld - reset', () {
-    late MyWorld myWorld;
-
-    setUp(() {
-      myWorld = MyWorld();
-    });
-
-    testWithFlameGame('resetメソッドでプレイヤーが原点に戻る', (game) async {
+    testWithGame<MyGame>('resetメソッドでプレイヤーが原点に戻る', myGameTester.createGame, (game) async {
+      final myWorld = MyWorld();
       // MyWorldをゲームに追加してロード
       await game.add(myWorld);
       await game.ready();
@@ -29,7 +27,8 @@ void main() {
       expect(myWorld.player.position, Vector2.zero());
     });
 
-    testWithFlameGame('resetメソッドで自動移動が再開される', (game) async {
+    testWithGame<MyGame>('resetメソッドで自動移動が再開される', myGameTester.createGame, (game) async {
+      final myWorld = MyWorld();
       // MyWorldをゲームに追加してロード
       await game.add(myWorld);
       await game.ready();
@@ -45,7 +44,8 @@ void main() {
       expect(myWorld.player.isAutoMovementActive, true);
     });
 
-    testWithFlameGame('resetメソッドでタイルキャッシュがクリアされて再生成される', (game) async {
+    testWithGame<MyGame>('resetメソッドでタイルキャッシュがクリアされて再生成される', myGameTester.createGame, (game) async {
+      final myWorld = MyWorld();
       // MyWorldをゲームに追加してロード
       await game.add(myWorld);
       await game.ready();
@@ -70,7 +70,8 @@ void main() {
       );
     });
 
-    testWithFlameGame('resetメソッドで新しい目的地が設定される', (game) async {
+    testWithGame<MyGame>('resetメソッドで新しい目的地が設定される', myGameTester.createGame, (game) async {
+      final myWorld = MyWorld();
       // MyWorldをゲームに追加してロード
       await game.add(myWorld);
       await game.ready();
@@ -87,7 +88,8 @@ void main() {
       expect(myWorld.player.destination, isNot(equals(initialDestination)));
     });
 
-    testWithFlameGame('reset後もゲームが正常に動作する', (game) async {
+    testWithGame<MyGame>('reset後もゲームが正常に動作する', myGameTester.createGame, (game) async {
+      final myWorld = MyWorld();
       // MyWorldをゲームに追加してロード
       await game.add(myWorld);
       await game.ready();

@@ -17,8 +17,9 @@ class Player extends SpriteComponent
     : super(size: Vector2.all(Config.playerSize), anchor: Anchor.center);
 
   @override
-  Future<void> onLoad() async {
-    sprite = await Sprite.load('walk_boy_walk.png');
+  void onLoad() {
+    final image = game.images.fromCache('walk_boy_walk.png');
+    sprite = Sprite(image);
     add(CircleHitbox());
   }
 
