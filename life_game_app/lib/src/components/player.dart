@@ -1,6 +1,5 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/services.dart';
 import '../my_game.dart';
 import '../config.dart';
 import 'destination_marker.dart';
