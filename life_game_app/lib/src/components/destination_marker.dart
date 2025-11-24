@@ -1,3 +1,4 @@
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +14,18 @@ class DestinationMarker extends CircleComponent {
       );
 
   @override
+  bool get debugMode => true;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    add(CircleHitbox(collisionType: CollisionType.passive));
+  }
+
+  @override
   void render(Canvas canvas) {
     // 外側の円（親クラスで描画）
-    super.render(canvas);
+    // super.render(canvas);
 
     // 内側の円
     canvas.drawCircle(
