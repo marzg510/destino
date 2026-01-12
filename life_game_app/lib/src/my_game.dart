@@ -6,7 +6,8 @@ import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 import 'package:life_game_app/src/terrain/terrain_type.dart';
 
-import 'components/player.dart';
+import 'actors/player.dart';
+import 'actors/garbage_manager.dart';
 import 'components/debug_overlay.dart';
 import 'components/title_screen.dart';
 import 'components/destination_marker.dart';
@@ -23,6 +24,7 @@ class MyGame extends FlameGame
 
   late Player player;
   late TerrainManager terrainManager;
+  late GarbageManager garbageManager;
   late TitleScreen titleScreen;
   DestinationMarker? _destinationMarker;
   final Random _random = Random();
@@ -52,6 +54,7 @@ class MyGame extends FlameGame
     player.priority = 100;
 
     terrainManager = TerrainManager();
+    garbageManager = GarbageManager();
 
     titleScreen = TitleScreen(
       position: Vector2.zero(),
@@ -102,13 +105,14 @@ class MyGame extends FlameGame
 
     world.add(player);
     world.add(terrainManager);
+    world.add(garbageManager);
 
     camera.follow(player);
 
     final debugOverlay = DebugOverlay(player: player);
     camera.viewport.add(debugOverlay);
 
-    setRandomDestination();
+    selectNextGarbage();
   }
 
   void setRandomDestination() {
@@ -132,6 +136,23 @@ class MyGame extends FlameGame
     );
 
     setPlayerDestination(clampedTarget);
+  }
+
+  void selectNextGarbage() {
+    final availableGarbages = garbageManager.getAllGarbages();
+
+    if (availableGarbages.isEmpty) {
+      debugPrint('No garbage available, waiting for respawn...');
+      Future.delayed(Duration(milliseconds: 100), () {
+        selectNextGarbage();
+      });
+      return;
+    }
+
+    final randomIndex = _random.nextInt(availableGarbages.length);
+    final targetGarbage = availableGarbages[randomIndex];
+
+    setPlayerDestination(targetGarbage.position);
   }
 
   void setPlayerDestination(Vector2 target) {
@@ -167,6 +188,7 @@ class MyGame extends FlameGame
     player.position = Vector2.zero();
     player.startAutoMovement();
     terrainManager.clear();
+    garbageManager.clear();
     clearDestination();
     setRandomDestination();
     arrivalCount.value = 0;
@@ -175,10 +197,29 @@ class MyGame extends FlameGame
 
   void onPlayerArrival(Vector2 arrivalPosition) {
     debugPrint('Player arrived at $arrivalPosition');
-    _audioManager.playArrivalSound();
-    showArrivalEffect(arrivalPosition);
-    arrivalCount.value = arrivalCount.value + 1;
-    clearDestination();
-    setRandomDestination();
+
+    // ゴミ収集を試みる
+    final collectedGarbage = garbageManager.removeGarbageAt(arrivalPosition);
+
+    if (collectedGarbage != null) {
+      // ゴミを収集した場合
+      _audioManager.playArrivalSound();
+      showArrivalEffect(arrivalPosition);
+      arrivalCount.value = arrivalCount.value + 1;
+
+      clearDestination();
+
+      // 次のゴミを選択
+      Future.delayed(Duration(milliseconds: 100), () {
+        selectNextGarbage();
+      });
+    } else {
+      // ゴミがない場合はDestinationMarker到達（既存の処理）
+      _audioManager.playArrivalSound();
+      showArrivalEffect(arrivalPosition);
+      arrivalCount.value = arrivalCount.value + 1;
+      clearDestination();
+      setRandomDestination();
+    }
   }
 }

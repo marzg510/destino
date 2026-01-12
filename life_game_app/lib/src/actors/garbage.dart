@@ -3,15 +3,14 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../config.dart';
 
-class DestinationMarker extends CircleComponent {
-  DestinationMarker({super.position})
+class Garbage extends CircleComponent {
+  Garbage({super.position})
     : super(
-        radius: 10,
+        radius: Config.garbageSize,
         anchor: Anchor.center,
         paint: Paint()
-          ..color = Colors.red
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3,
+          ..color = Colors.yellow.withValues(alpha: 0.8)
+          ..style = PaintingStyle.fill,
       );
 
   @override
@@ -25,14 +24,16 @@ class DestinationMarker extends CircleComponent {
 
   @override
   void render(Canvas canvas) {
-    // 外側の円（親クラスで描画）
-    // super.render(canvas);
+    super.render(canvas);
 
-    // 内側の円
+    // 外枠を追加
     canvas.drawCircle(
       Offset(radius, radius),
-      radius * 0.3,
-      Paint()..color = Colors.red,
+      radius,
+      Paint()
+        ..color = Colors.green.shade700
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
     );
   }
 }
