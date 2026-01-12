@@ -13,7 +13,7 @@ import 'components/destination_marker.dart';
 import 'components/arrival_effect.dart';
 import 'components/bloom_effect.dart';
 import 'managers/audio_manager.dart';
-import 'managers/terrain_manager.dart';
+import 'terrain/terrain_manager.dart';
 
 enum GameState { loading, title, playing }
 
