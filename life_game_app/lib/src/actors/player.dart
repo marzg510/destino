@@ -70,24 +70,7 @@ class Player extends SpriteComponent
 
     if (_isProcessingArrival) return;
 
-    // DestinationMarkerとの衝突判定（既存、保持）
-    if (other is DestinationMarker) {
-      Vector2 direction = other.position - position;
-      double distance = direction.length;
-      if (distance <= Config.arrivalThreshold) {
-        _isProcessingArrival = true;
-        stopAutoMovement();
-        velocity = Vector2.zero();
-        if (isMounted) {
-          game.onPlayerArrival(position.clone());
-          Future.delayed(Duration(milliseconds: 200), () {
-            _isProcessingArrival = false;
-          });
-        }
-      }
-    }
-
-    // Garbageとの衝突判定（新規追加）
+    // Garbageとの衝突判定
     if (other is Garbage) {
       Vector2 direction = other.position - position;
       double distance = direction.length;
@@ -104,26 +87,4 @@ class Player extends SpriteComponent
       }
     }
   }
-
-  // @override
-  // void handleInput(Set<LogicalKeyboardKey> keysPressed) {
-  // velocity = Vector2.zero();
-
-  // if (keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
-  //     keysPressed.contains(LogicalKeyboardKey.keyA)) {
-  //   velocity.x = -GameConstants.playerSpeed;
-  // }
-  // if (keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
-  //     keysPressed.contains(LogicalKeyboardKey.keyD)) {
-  //   velocity.x = GameConstants.playerSpeed;
-  // }
-  // if (keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
-  //     keysPressed.contains(LogicalKeyboardKey.keyW)) {
-  //   velocity.y = -GameConstants.playerSpeed;
-  // }
-  // if (keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
-  //     keysPressed.contains(LogicalKeyboardKey.keyS)) {
-  //   velocity.y = GameConstants.playerSpeed;
-  // }
-  // }
 }
