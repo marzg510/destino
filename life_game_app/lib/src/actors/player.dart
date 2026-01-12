@@ -8,8 +8,6 @@ class Player extends SpriteComponent
     with CollisionCallbacks, HasGameReference<MyGame> {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
-  bool isAutoMovementActive = true;
-  bool _isProcessingArrival = false;
   bool isManualMovement = false;
 
   @override
@@ -32,22 +30,13 @@ class Player extends SpriteComponent
     Vector2 direction = destination! - position;
     direction.normalize();
     velocity = direction * Config.playerSpeed;
-    startAutoMovement();
-  }
-
-  void stopAutoMovement() {
-    isAutoMovementActive = false;
-  }
-
-  void startAutoMovement() {
-    isAutoMovementActive = true;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
 
-    if (!isAutoMovementActive || destination == null) {
+    if (destination == null) {
       velocity = Vector2.zero();
       return;
     }
@@ -64,20 +53,12 @@ class Player extends SpriteComponent
 
     position = clampedPosition;
 
-    // 目的地への到着チェック
-    if (destination != null && !_isProcessingArrival) {
-      final distanceToDestination = (destination! - position).length;
-      if (distanceToDestination <= Config.arrivalThreshold) {
-        _isProcessingArrival = true;
-        stopAutoMovement();
-        velocity = Vector2.zero();
-        if (isMounted) {
-          game.onDestinationReached(position.clone(), isManualMovement);
-          Future.delayed(Duration(milliseconds: 200), () {
-            _isProcessingArrival = false;
-          });
-        }
-      }
+    // 目的地到着チェック
+    final distanceToDestination = (destination! - position).length;
+    if (distanceToDestination <= Config.arrivalThreshold) {
+      // 到着処理
+      velocity = Vector2.zero();
+      destination = null;
     }
   }
 

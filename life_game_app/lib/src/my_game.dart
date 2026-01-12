@@ -176,7 +176,7 @@ class MyGame extends FlameGame
   }
 
   void clearDestination() {
-    player.stopAutoMovement();
+    player.destination = null;
 
     if (_destinationMarker != null) {
       _destinationMarker!.removeFromParent();
@@ -195,7 +195,6 @@ class MyGame extends FlameGame
 
   void resetGame() {
     player.position = Vector2.zero();
-    player.startAutoMovement();
     terrainManager.clear();
     garbageManager.clear();
     clearDestination();
@@ -222,20 +221,6 @@ class MyGame extends FlameGame
     // 自動移動中の場合は次のゴミを選択
     if (!player.isManualMovement) {
       clearDestination();
-      Future.delayed(Duration(milliseconds: 100), () {
-        selectNextGarbage();
-      });
-    }
-  }
-
-  void onDestinationReached(Vector2 position, bool wasManual) {
-    debugPrint('Destination reached at $position (manual: $wasManual)');
-
-    clearDestination();
-
-    // 自動移動の場合のみ次のゴミを選択
-    // （手動移動の場合は、ゴミのない場所への移動の可能性があるため）
-    if (!wasManual) {
       Future.delayed(Duration(milliseconds: 100), () {
         selectNextGarbage();
       });

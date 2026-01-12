@@ -31,10 +31,14 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
   void _updateGarbageCount() {
     _removeDistantGarbage();
 
-    while (_garbages.length < Config.targetGarbageCount) {
+    const maxAttemptsPerUpdate = 100; // 1回の更新での最大試行回数
+    int attempts = 0;
+
+    while (_garbages.length < Config.targetGarbageCount &&
+        attempts < maxAttemptsPerUpdate) {
       final success = _spawnRandomGarbage();
       if (!success) {
-        break;
+        attempts++;
       }
     }
   }
