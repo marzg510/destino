@@ -10,6 +10,9 @@
       "request": "launch",
       "type": "dart",
       "deviceId": "web-server",
+      "args": [
+        "--web-port=3000"
+      ]
     },
     {
       "name": "life_game_app (profile mode)",

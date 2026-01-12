@@ -19,7 +19,7 @@ import 'terrain/terrain_manager.dart';
 enum GameState { loading, title, playing }
 
 class MyGame extends FlameGame
-    with HasCollisionDetection, KeyboardEvents, TapDetector {
+    with HasCollisionDetection, KeyboardEvents, TapCallbacks {
   MyGame();
 
   late Player player;
@@ -78,21 +78,19 @@ class MyGame extends FlameGame
   }
 
   @override
-  void onTap() {
-    super.onTap();
+  void onTapDown(TapDownEvent event) {
+    debugPrint('Tap detected at ${event.canvasPosition}');
 
-    debugPrint('Tap detected');
     if (currentState == GameState.title) {
       startGame();
       return;
     }
 
-    if (isPlaying && !paused) {
-      debugPrint('pause');
-      pauseEngine();
-    } else if (paused) {
-      debugPrint('resume');
-      resumeEngine();
+    if (isPlaying) {
+      // タップ位置をワールド座標に変換
+      final worldPosition = camera.globalToLocal(event.canvasPosition);
+      debugPrint('Setting destination to $worldPosition');
+      setPlayerDestination(worldPosition);
     }
   }
 

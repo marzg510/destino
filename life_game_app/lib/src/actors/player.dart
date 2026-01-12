@@ -2,7 +2,6 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import '../my_game.dart';
 import '../config.dart';
-import '../components/destination_marker.dart';
 import 'garbage.dart';
 
 class Player extends SpriteComponent
