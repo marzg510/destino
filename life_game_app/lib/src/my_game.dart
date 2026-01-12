@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -5,28 +6,31 @@ import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 import 'package:life_game_app/src/terrain/terrain_type.dart';
 
-import 'game/my_world.dart';
+import 'components/player.dart';
 import 'components/debug_overlay.dart';
 import 'components/title_screen.dart';
-import 'components/player.dart';
+import 'components/destination_marker.dart';
+import 'components/arrival_effect.dart';
+import 'components/bloom_effect.dart';
 import 'managers/audio_manager.dart';
+import 'managers/terrain_manager.dart';
 
-enum GameState {
-  loading, // ローディング
-  title, // タイトル
-  playing, // プレイ中
-}
+enum GameState { loading, title, playing }
 
-class MyGame extends FlameGame<MyWorld>
+class MyGame extends FlameGame
     with HasCollisionDetection, KeyboardEvents, TapDetector {
-  MyGame() : super(world: MyWorld());
+  MyGame();
 
+  late Player player;
+  late TerrainManager terrainManager;
   late TitleScreen titleScreen;
+  DestinationMarker? _destinationMarker;
+  final Random _random = Random();
+
   GameState _currentState = GameState.loading;
   final ValueNotifier<int> arrivalCount = ValueNotifier<int>(0);
   final AudioManager _audioManager = AudioManager();
 
-  // GameState管理
   GameState get currentState => _currentState;
   bool get isPlaying => _currentState == GameState.playing;
 
@@ -43,16 +47,19 @@ class MyGame extends FlameGame<MyWorld>
       TerrainType.ocean.spritePath,
     ]);
     super.onLoad();
-    // タイトル画面を作成
+
+    player = Player(position: Vector2.zero());
+    player.priority = 100;
+
+    terrainManager = TerrainManager();
+
     titleScreen = TitleScreen(
       position: Vector2.zero(),
       size: camera.viewport.size,
     );
 
-    // タイトル画面を追加（カメラのHUDとして追加）
     camera.viewport.add(titleScreen);
 
-    // 初期状態はtitle
     setState(GameState.title);
 
     await add(FpsTextComponent(position: Vector2(10, 100)));
@@ -63,10 +70,6 @@ class MyGame extends FlameGame<MyWorld>
     KeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
-    // タイトル画面またはpaused状態ではキーボード入力を無効化
-    // if (currentState != GameState.title && !paused) {
-    //   world.player.handleInput(keysPressed);
-    // }
     super.onKeyEvent(event, keysPressed);
     return KeyEventResult.handled;
   }
@@ -76,12 +79,11 @@ class MyGame extends FlameGame<MyWorld>
     super.onTap();
 
     debugPrint('Tap detected');
-    // タイトル画面でタップしたらゲーム開始
     if (currentState == GameState.title) {
       startGame();
+      return;
     }
 
-    // ゲーム中の一時停止/再開の切り替え
     if (isPlaying && !paused) {
       debugPrint('pause');
       pauseEngine();
@@ -94,40 +96,89 @@ class MyGame extends FlameGame<MyWorld>
   Future<void> startGame() async {
     if (currentState == GameState.playing) return;
 
-    // タイトル画面を非表示にする
     titleScreen.removeFromParent();
 
-    await world.loaded;
-    final players = world.children.query<Player>();
-    if (players.isNotEmpty) {
-      camera.follow(players.first);
-    }
+    setState(GameState.playing);
 
-    // デバッグオーバーレイを追加
-    final debugOverlay = DebugOverlay(player: world.player);
+    world.add(player);
+    world.add(terrainManager);
+
+    camera.follow(player);
+
+    final debugOverlay = DebugOverlay(player: player);
     camera.viewport.add(debugOverlay);
 
-    // ゲーム開始（playing状態にする）
-    setState(GameState.playing);
+    setRandomDestination();
+  }
+
+  void setRandomDestination() {
+    final playerPos = player.position;
+    final minDistance = 300.0;
+    final maxDistance = 500.0;
+
+    final angle = _random.nextDouble() * 2 * pi;
+    final distance =
+        minDistance + _random.nextDouble() * (maxDistance - minDistance);
+
+    final randomTarget = Vector2(
+      playerPos.x + cos(angle) * distance,
+      playerPos.y + sin(angle) * distance,
+    );
+
+    final mapBounds = 100 * 64.0;
+    final clampedTarget = Vector2(
+      randomTarget.x.clamp(-mapBounds, mapBounds),
+      randomTarget.y.clamp(-mapBounds, mapBounds),
+    );
+
+    setPlayerDestination(clampedTarget);
+  }
+
+  void setPlayerDestination(Vector2 target) {
+    player.setDestination(target);
+
+    if (_destinationMarker != null) {
+      _destinationMarker!.removeFromParent();
+    }
+
+    _destinationMarker = DestinationMarker(position: target);
+    world.add(_destinationMarker!);
+  }
+
+  void clearDestination() {
+    player.stopAutoMovement();
+
+    if (_destinationMarker != null) {
+      _destinationMarker!.removeFromParent();
+      _destinationMarker = null;
+    }
+  }
+
+  void showArrivalEffect(Vector2 position) {
+    final effect = ArrivalEffect(effectPosition: position);
+    world.add(effect);
+    final offset = Vector2(20, 10);
+    final bloomPosition = position + offset;
+    final bloomEffect = BloomEffect(effectPosition: bloomPosition);
+    world.add(bloomEffect);
   }
 
   void resetGame() {
-    world.reset();
+    player.position = Vector2.zero();
+    player.startAutoMovement();
+    terrainManager.clear();
+    clearDestination();
+    setRandomDestination();
     arrivalCount.value = 0;
     setState(GameState.playing);
   }
 
   void onPlayerArrival(Vector2 arrivalPosition) {
     debugPrint('Player arrived at $arrivalPosition');
-    // 効果音を再生
     _audioManager.playArrivalSound();
-    // 演出を表示
-    world.showArrivalEffect(arrivalPosition);
-    // 到達回数を増やす
+    showArrivalEffect(arrivalPosition);
     arrivalCount.value = arrivalCount.value + 1;
-    // 目的地をクリア
-    world.clearDestination();
-    // 新しい目的地を設定
-    world.setRandomDestination();
+    clearDestination();
+    setRandomDestination();
   }
 }
