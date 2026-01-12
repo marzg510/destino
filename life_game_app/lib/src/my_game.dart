@@ -6,6 +6,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 import 'package:life_game_app/src/terrain/terrain_type.dart';
 
+import 'actors/garbage.dart';
 import 'actors/player.dart';
 import 'actors/garbage_manager.dart';
 import 'components/debug_overlay.dart';
@@ -90,7 +91,7 @@ class MyGame extends FlameGame
       // タップ位置をワールド座標に変換
       final worldPosition = camera.globalToLocal(event.canvasPosition);
       debugPrint('Setting destination to $worldPosition');
-      setPlayerDestination(worldPosition);
+      setPlayerDestination(worldPosition, manual: true);
     }
   }
 
@@ -147,14 +148,24 @@ class MyGame extends FlameGame
       return;
     }
 
-    final randomIndex = _random.nextInt(availableGarbages.length);
-    final targetGarbage = availableGarbages[randomIndex];
+    // 一番近いゴミを探す
+    final playerPos = player.position;
+    var closestGarbage = availableGarbages[0];
+    var closestDistance = (closestGarbage.position - playerPos).length;
 
-    setPlayerDestination(targetGarbage.position);
+    for (final garbage in availableGarbages.skip(1)) {
+      final distance = (garbage.position - playerPos).length;
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestGarbage = garbage;
+      }
+    }
+
+    setPlayerDestination(closestGarbage.position);
   }
 
-  void setPlayerDestination(Vector2 target) {
-    player.setDestination(target);
+  void setPlayerDestination(Vector2 target, {bool manual = false}) {
+    player.setDestination(target, manual: manual);
 
     if (_destinationMarker != null) {
       _destinationMarker!.removeFromParent();
@@ -193,31 +204,41 @@ class MyGame extends FlameGame
     setState(GameState.playing);
   }
 
-  void onPlayerArrival(Vector2 arrivalPosition) {
-    debugPrint('Player arrived at $arrivalPosition');
-
-    // ゴミ収集を試みる
-    final collectedGarbage = garbageManager.removeGarbageAt(arrivalPosition);
-
-    if (collectedGarbage != null) {
-      // ゴミを収集した場合
+  void _collectGarbage(Garbage? garbage) {
+    if (garbage != null) {
+      garbageManager.removeGarbage(garbage);
       _audioManager.playArrivalSound();
-      showArrivalEffect(arrivalPosition);
+      showArrivalEffect(garbage.position);
       arrivalCount.value = arrivalCount.value + 1;
+    }
+  }
 
+  void onGarbageCollected(Garbage garbage) {
+    debugPrint('Garbage collected at ${garbage.position}');
+
+    _collectGarbage(garbage);
+
+    // 手動移動中の場合は目的地を変更しない
+    // 自動移動中の場合は次のゴミを選択
+    if (!player.isManualMovement) {
       clearDestination();
-
-      // 次のゴミを選択
       Future.delayed(Duration(milliseconds: 100), () {
         selectNextGarbage();
       });
-    } else {
-      // ゴミがない場合はDestinationMarker到達（既存の処理）
-      _audioManager.playArrivalSound();
-      showArrivalEffect(arrivalPosition);
-      arrivalCount.value = arrivalCount.value + 1;
-      clearDestination();
-      setRandomDestination();
+    }
+  }
+
+  void onDestinationReached(Vector2 position, bool wasManual) {
+    debugPrint('Destination reached at $position (manual: $wasManual)');
+
+    clearDestination();
+
+    // 自動移動の場合のみ次のゴミを選択
+    // （手動移動の場合は、ゴミのない場所への移動の可能性があるため）
+    if (!wasManual) {
+      Future.delayed(Duration(milliseconds: 100), () {
+        selectNextGarbage();
+      });
     }
   }
 }

@@ -10,6 +10,7 @@ class Player extends SpriteComponent
   Vector2? destination;
   bool isAutoMovementActive = true;
   bool _isProcessingArrival = false;
+  bool isManualMovement = false;
 
   @override
   bool get debugMode => Config.debugMode;
@@ -24,8 +25,9 @@ class Player extends SpriteComponent
     add(CircleHitbox());
   }
 
-  void setDestination(Vector2 target) {
+  void setDestination(Vector2 target, {bool manual = false}) {
     destination = target.clone();
+    isManualMovement = manual;
     // 正規化された方向ベクトルを計算
     Vector2 direction = destination! - position;
     direction.normalize();
@@ -61,29 +63,31 @@ class Player extends SpriteComponent
     );
 
     position = clampedPosition;
+
+    // 目的地への到着チェック
+    if (destination != null && !_isProcessingArrival) {
+      final distanceToDestination = (destination! - position).length;
+      if (distanceToDestination <= Config.arrivalThreshold) {
+        _isProcessingArrival = true;
+        stopAutoMovement();
+        velocity = Vector2.zero();
+        if (isMounted) {
+          game.onDestinationReached(position.clone(), isManualMovement);
+          Future.delayed(Duration(milliseconds: 200), () {
+            _isProcessingArrival = false;
+          });
+        }
+      }
+    }
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    if (_isProcessingArrival) return;
-
     // Garbageとの衝突判定
-    if (other is Garbage) {
-      Vector2 direction = other.position - position;
-      double distance = direction.length;
-      if (distance <= Config.arrivalThreshold) {
-        _isProcessingArrival = true;
-        stopAutoMovement();
-        velocity = Vector2.zero();
-        if (isMounted) {
-          game.onPlayerArrival(position.clone());
-          Future.delayed(Duration(milliseconds: 200), () {
-            _isProcessingArrival = false;
-          });
-        }
-      }
+    if (other is Garbage && isMounted) {
+      game.onGarbageCollected(other);
     }
   }
 }

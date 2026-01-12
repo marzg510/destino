@@ -11,7 +11,8 @@
       "type": "dart",
       "deviceId": "web-server",
       "args": [
-        "--web-port=3000"
+        "--web-port",
+        "3000"
       ]
     },
     {

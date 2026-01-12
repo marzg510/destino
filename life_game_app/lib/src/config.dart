@@ -25,4 +25,5 @@ class Config {
   static const int targetGarbageCount = 50; // 維持するゴミの数
   static const double garbageSize = 8.0; // ゴミの半径
   static const double garbageUpdateInterval = 0.5; // ゴミの更新間隔（秒）
+  static const double minGarbageSpacing = 50.0; // ゴミ同士の最小距離
 }
