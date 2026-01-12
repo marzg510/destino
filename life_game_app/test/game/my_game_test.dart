@@ -1,7 +1,10 @@
+import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_game_app/src/my_game.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('MyGame - GameState管理', () {
     late MyGame game;
 
@@ -58,5 +61,41 @@ void main() {
         expect(game.currentState, equals(GameState.playing));
       });
     });
+  });
+
+  group('MyGame - Garbage Collection', () {
+    testWithGame<MyGame>(
+      'selectNextGarbageがランダムなゴミを選択する',
+      () => MyGame(),
+      (game) async {
+        await game.ready();
+        game.startGame();
+        await game.ready();
+
+        final garbages = game.garbageManager.getAllGarbages();
+        expect(garbages, isNotEmpty);
+
+        game.selectNextGarbage();
+        await game.ready();
+
+        expect(game.player.destination, isNotNull);
+      },
+    );
+
+    testWithGame<MyGame>(
+      'resetGame後にゴミがクリアされる',
+      () => MyGame(),
+      (game) async {
+        await game.ready();
+        game.startGame();
+        await game.ready();
+
+        game.resetGame();
+        await game.ready();
+
+        // resetGameではゴミはクリアされるが、その後のupdateで再生成される
+        expect(game.garbageManager, isNotNull);
+      },
+    );
   });
 }

@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/material.dart';
-import 'player.dart';
+import '../actors/player.dart';
 
 /// デバッグ情報を画面にオーバーレイ表示するコンポーネント
 ///

@@ -2,16 +2,18 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import '../my_game.dart';
 import '../config.dart';
-import 'destination_marker.dart';
+import '../components/destination_marker.dart';
+import 'garbage.dart';
 
 class Player extends SpriteComponent
     with CollisionCallbacks, HasGameReference<MyGame> {
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
   bool isAutoMovementActive = true;
+  bool _isProcessingArrival = false;
 
   @override
-  bool get debugMode => true;
+  bool get debugMode => Config.debugMode;
 
   Player({super.position})
     : super(size: Vector2.all(Config.playerSize), anchor: Anchor.center);
@@ -65,16 +67,40 @@ class Player extends SpriteComponent
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
+
+    if (_isProcessingArrival) return;
+
+    // DestinationMarkerとの衝突判定（既存、保持）
     if (other is DestinationMarker) {
-      // 目的地の到達判定
       Vector2 direction = other.position - position;
       double distance = direction.length;
       if (distance <= Config.arrivalThreshold) {
-        // 目的地に到達
+        _isProcessingArrival = true;
         stopAutoMovement();
         velocity = Vector2.zero();
-        // 到達イベントを通知
-        if (isMounted) game.onPlayerArrival(position.clone());
+        if (isMounted) {
+          game.onPlayerArrival(position.clone());
+          Future.delayed(Duration(milliseconds: 200), () {
+            _isProcessingArrival = false;
+          });
+        }
+      }
+    }
+
+    // Garbageとの衝突判定（新規追加）
+    if (other is Garbage) {
+      Vector2 direction = other.position - position;
+      double distance = direction.length;
+      if (distance <= Config.arrivalThreshold) {
+        _isProcessingArrival = true;
+        stopAutoMovement();
+        velocity = Vector2.zero();
+        if (isMounted) {
+          game.onPlayerArrival(position.clone());
+          Future.delayed(Duration(milliseconds: 200), () {
+            _isProcessingArrival = false;
+          });
+        }
       }
     }
   }
