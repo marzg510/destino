@@ -43,6 +43,18 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
     }
   }
 
+  /// 位置からグリッドキーを計算する
+  ///
+  /// Config.minGarbageSpacing単位でグリッド化することで、
+  /// 同じキーを持つ位置は必然的に最小距離以内に収まる
+  ///
+  (int, int) _getKeyForPosition(Vector2 position) {
+    return (
+      (position.x / Config.minGarbageSpacing).round(),
+      (position.y / Config.minGarbageSpacing).round(),
+    );
+  }
+
   /// ゴミを1つ生成する
   ///
   /// Returns: 生成に成功した場合true、重複などで失敗した場合false
@@ -58,9 +70,8 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
 
     final clampedPos = _clampToMapBounds(garbagePos);
 
-    // 仮のGarbageオブジェクトを作成してキーを取得
-    final tempGarbage = Garbage(position: clampedPos);
-    final key = tempGarbage.getKey();
+    // キーを計算
+    final key = _getKeyForPosition(clampedPos);
 
     // キーの重複チェック（minGarbageSpacing単位のグリッドで管理しているため、
     // キーが重複 = 近すぎる位置 となり、距離チェックは不要）
@@ -68,9 +79,10 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
       return false; // 同じグリッドに既にゴミが存在する場合は失敗
     }
 
-    // ゴミを生成
-    _garbages[key] = tempGarbage;
-    game.world.add(tempGarbage);
+    // 重複がなければゴミを生成
+    final garbage = Garbage(position: clampedPos);
+    _garbages[key] = garbage;
+    game.world.add(garbage);
     return true;
   }
 
@@ -118,7 +130,7 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
   }
 
   void removeGarbage(Garbage garbage) {
-    final key = garbage.getKey();
+    final key = _getKeyForPosition(garbage.position);
     _garbages.remove(key);
     garbage.removeFromParent();
   }

@@ -41,14 +41,4 @@ class Garbage extends CircleComponent {
     );
   }
 
-  /// ゴミの位置をキーとして取得
-  ///
-  /// Config.minGarbageSpacing単位でグリッド化することで、
-  /// 同じキーを持つゴミは必然的に最小距離以内に収まる
-  (int, int) getKey() {
-    return (
-      (position.x / Config.minGarbageSpacing).round(),
-      (position.y / Config.minGarbageSpacing).round(),
-    );
-  }
 }
