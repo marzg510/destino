@@ -9,9 +9,13 @@ class Player extends SpriteComponent
   Vector2 velocity = Vector2.zero();
   Vector2? destination;
   bool isManualMovement = false;
+  double _idleTime = 0.0; // 手動モード時のアイドル経過時間
 
   @override
   bool get debugMode => Config.debugMode;
+
+  // デバッグ用のアイドルタイムゲッター
+  double get idleTime => _idleTime;
 
   Player({super.position})
     : super(size: Vector2.all(Config.playerSize), anchor: Anchor.center);
@@ -26,6 +30,7 @@ class Player extends SpriteComponent
   void setDestination(Vector2 target, {bool manual = false}) {
     destination = target.clone();
     isManualMovement = manual;
+    _idleTime = 0.0; // アイドルタイマーをリセット
     // 正規化された方向ベクトルを計算
     Vector2 direction = destination! - position;
     direction.normalize();
@@ -38,8 +43,26 @@ class Player extends SpriteComponent
 
     if (destination == null) {
       velocity = Vector2.zero();
+
+      // アイドルタイムアウトロジック
+      if (isManualMovement) {
+        _idleTime += dt;
+
+        if (_idleTime >= Config.manualModeIdleTimeout) {
+          // タイムアウト到達 - 自動モードに切り替え
+          isManualMovement = false;
+          _idleTime = 0.0;
+
+          // ゲームに次のゴミを選択するよう通知
+          (game as MyGame).onPlayerIdleTimeout();
+        }
+      }
+
       return;
     }
+
+    // 目的地がある場合はアイドルタイマーをリセット
+    _idleTime = 0.0;
 
     // 移動処理
     final newPosition = position + velocity * dt;

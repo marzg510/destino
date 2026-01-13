@@ -164,6 +164,11 @@ class MyGame extends FlameGame
     setPlayerDestination(closestGarbage.position);
   }
 
+  void onPlayerIdleTimeout() {
+    debugPrint('Player idle timeout - switching to automatic mode');
+    selectNextGarbage();
+  }
+
   void setPlayerDestination(Vector2 target, {bool manual = false}) {
     player.setDestination(target, manual: manual);
 

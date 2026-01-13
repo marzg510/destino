@@ -16,7 +16,10 @@ class Config {
   static const double playerSize = 64.0;
 
   // 目的地到達判定の閾値（この距離以内で到達とみなす）
-  static const double arrivalThreshold = 30.0;
+  static const double arrivalThreshold = 10.0;
+
+  // プレイヤーアイドルタイムアウト設定
+  static const double manualModeIdleTimeout = 2.0; // 手動モードから自動モードに戻るまでの秒数
 
   // ゴミ関連の設定
   static const double garbageSpawnRadius = 1000.0; // プレイヤー周辺のゴミ生成範囲
