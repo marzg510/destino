@@ -4,6 +4,7 @@ import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_game_app/src/actors/garbage.dart';
 import 'package:life_game_app/src/my_game.dart';
+import 'package:life_game_app/src/config.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,7 @@ void main() {
 
         expect(garbage.position, Vector2.zero());
         expect(garbage.isMounted, isTrue);
+        expect(garbage.radius, Config.garbageSize);
       },
     );
 
@@ -28,7 +30,9 @@ void main() {
         final garbage = Garbage(position: Vector2.zero());
         await game.ensureAdd(garbage);
 
-        expect(garbage.children.whereType<CircleHitbox>().length, 1);
+        final hitboxes = garbage.children.whereType<CircleHitbox>();
+        expect(hitboxes.length, 1);
+        expect(hitboxes.first.collisionType, CollisionType.passive);
       },
     );
   });

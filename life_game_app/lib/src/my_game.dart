@@ -6,6 +6,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/services.dart';
 import 'package:life_game_app/src/terrain/terrain_type.dart';
 
+import 'actors/garbage.dart';
 import 'actors/player.dart';
 import 'actors/garbage_manager.dart';
 import 'components/debug_overlay.dart';
@@ -19,7 +20,7 @@ import 'terrain/terrain_manager.dart';
 enum GameState { loading, title, playing }
 
 class MyGame extends FlameGame
-    with HasCollisionDetection, KeyboardEvents, TapDetector {
+    with HasCollisionDetection, KeyboardEvents, TapCallbacks {
   MyGame();
 
   late Player player;
@@ -78,21 +79,19 @@ class MyGame extends FlameGame
   }
 
   @override
-  void onTap() {
-    super.onTap();
+  void onTapDown(TapDownEvent event) {
+    debugPrint('Tap detected at ${event.canvasPosition}');
 
-    debugPrint('Tap detected');
     if (currentState == GameState.title) {
       startGame();
       return;
     }
 
-    if (isPlaying && !paused) {
-      debugPrint('pause');
-      pauseEngine();
-    } else if (paused) {
-      debugPrint('resume');
-      resumeEngine();
+    if (isPlaying) {
+      // タップ位置をワールド座標に変換
+      final worldPosition = camera.globalToLocal(event.canvasPosition);
+      debugPrint('Setting destination to $worldPosition');
+      setPlayerDestination(worldPosition, manual: true);
     }
   }
 
@@ -149,14 +148,29 @@ class MyGame extends FlameGame
       return;
     }
 
-    final randomIndex = _random.nextInt(availableGarbages.length);
-    final targetGarbage = availableGarbages[randomIndex];
+    // 一番近いゴミを探す
+    final playerPos = player.position;
+    var closestGarbage = availableGarbages[0];
+    var closestDistance = (closestGarbage.position - playerPos).length;
 
-    setPlayerDestination(targetGarbage.position);
+    for (final garbage in availableGarbages.skip(1)) {
+      final distance = (garbage.position - playerPos).length;
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestGarbage = garbage;
+      }
+    }
+
+    setPlayerDestination(closestGarbage.position);
   }
 
-  void setPlayerDestination(Vector2 target) {
-    player.setDestination(target);
+  void onPlayerIdleTimeout() {
+    debugPrint('Player idle timeout - switching to automatic mode');
+    selectNextGarbage();
+  }
+
+  void setPlayerDestination(Vector2 target, {bool manual = false}) {
+    player.setDestination(target, manual: manual);
 
     if (_destinationMarker != null) {
       _destinationMarker!.removeFromParent();
@@ -167,7 +181,7 @@ class MyGame extends FlameGame
   }
 
   void clearDestination() {
-    player.stopAutoMovement();
+    player.destination = null;
 
     if (_destinationMarker != null) {
       _destinationMarker!.removeFromParent();
@@ -186,7 +200,6 @@ class MyGame extends FlameGame
 
   void resetGame() {
     player.position = Vector2.zero();
-    player.startAutoMovement();
     terrainManager.clear();
     garbageManager.clear();
     clearDestination();
@@ -195,31 +208,27 @@ class MyGame extends FlameGame
     setState(GameState.playing);
   }
 
-  void onPlayerArrival(Vector2 arrivalPosition) {
-    debugPrint('Player arrived at $arrivalPosition');
-
-    // ゴミ収集を試みる
-    final collectedGarbage = garbageManager.removeGarbageAt(arrivalPosition);
-
-    if (collectedGarbage != null) {
-      // ゴミを収集した場合
+  void _collectGarbage(Garbage? garbage) {
+    if (garbage != null) {
+      garbageManager.removeGarbage(garbage);
       _audioManager.playArrivalSound();
-      showArrivalEffect(arrivalPosition);
+      showArrivalEffect(garbage.position);
       arrivalCount.value = arrivalCount.value + 1;
+    }
+  }
 
+  void onGarbageCollected(Garbage garbage) {
+    debugPrint('Garbage collected at ${garbage.position}');
+
+    _collectGarbage(garbage);
+
+    // 手動移動中の場合は目的地を変更しない
+    // 自動移動中の場合は次のゴミを選択
+    if (!player.isManualMovement) {
       clearDestination();
-
-      // 次のゴミを選択
       Future.delayed(Duration(milliseconds: 100), () {
         selectNextGarbage();
       });
-    } else {
-      // ゴミがない場合はDestinationMarker到達（既存の処理）
-      _audioManager.playArrivalSound();
-      showArrivalEffect(arrivalPosition);
-      arrivalCount.value = arrivalCount.value + 1;
-      clearDestination();
-      setRandomDestination();
     }
   }
 }

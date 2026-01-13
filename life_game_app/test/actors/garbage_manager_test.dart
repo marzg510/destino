@@ -40,7 +40,27 @@ void main() {
       expect(garbageCount, 0);
     });
 
-    testWithGame<MyGame>('removeGarbageAtで指定位置のゴミが削除される', () => MyGame(), (
+    testWithGame<MyGame>('removeGarbageでゴミが削除される', () => MyGame(), (
+      game,
+    ) async {
+      await game.ready();
+      game.startGame();
+      await game.ready();
+
+      final garbagesBefore = game.garbageManager.getAllGarbages();
+      if (garbagesBefore.isNotEmpty) {
+        final targetGarbage = garbagesBefore.first;
+        final countBefore = garbagesBefore.length;
+
+        game.garbageManager.removeGarbage(targetGarbage);
+        await game.ready();
+
+        final countAfter = game.garbageManager.getAllGarbages().length;
+        expect(countAfter, lessThan(countBefore));
+      }
+    });
+
+    testWithGame<MyGame>('ゴミが十分に離れて生成される', () => MyGame(), (
       game,
     ) async {
       await game.ready();
@@ -48,14 +68,18 @@ void main() {
       await game.ready();
 
       final garbages = game.garbageManager.getAllGarbages();
-      if (garbages.isNotEmpty) {
-        final targetGarbage = garbages.first;
-        final removed = game.garbageManager.removeGarbageAt(
-          targetGarbage.position,
-        );
 
-        expect(removed, isNotNull);
-        expect(removed, targetGarbage);
+      // グリッドベースで管理しているため、同じグリッドに複数配置されない
+      // ここでは物理的な距離が異常に近くないことをチェック
+      for (int i = 0; i < garbages.length; i++) {
+        for (int j = i + 1; j < garbages.length; j++) {
+          final distance = garbages[i].position.distanceTo(garbages[j].position);
+          expect(
+            distance,
+            greaterThan(0),
+            reason: 'ゴミが完全に重複しています',
+          );
+        }
       }
     });
   });

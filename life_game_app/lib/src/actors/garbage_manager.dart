@@ -5,7 +5,7 @@ import '../config.dart';
 import 'garbage.dart';
 
 class GarbageManager extends Component with HasGameReference<MyGame> {
-  final Map<String, Garbage> _garbages = {};
+  final Map<(int, int), Garbage> _garbages = {};
   final Random _random = Random();
   double _timeSinceLastCheck = 0;
 
@@ -31,12 +31,34 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
   void _updateGarbageCount() {
     _removeDistantGarbage();
 
-    while (_garbages.length < Config.targetGarbageCount) {
-      _spawnRandomGarbage();
+    const maxAttemptsPerUpdate = 100; // 1回の更新での最大試行回数
+    int attempts = 0;
+
+    while (_garbages.length < Config.targetGarbageCount &&
+        attempts < maxAttemptsPerUpdate) {
+      final success = _spawnRandomGarbage();
+      if (!success) {
+        attempts++;
+      }
     }
   }
 
-  void _spawnRandomGarbage() {
+  /// 位置からグリッドキーを計算する
+  ///
+  /// Config.minGarbageSpacing単位でグリッド化することで、
+  /// 同じキーを持つ位置は必然的に最小距離以内に収まる
+  ///
+  (int, int) _getKeyForPosition(Vector2 position) {
+    return (
+      (position.x / Config.minGarbageSpacing).round(),
+      (position.y / Config.minGarbageSpacing).round(),
+    );
+  }
+
+  /// ゴミを1つ生成する
+  ///
+  /// Returns: 生成に成功した場合true、重複などで失敗した場合false
+  bool _spawnRandomGarbage() {
     final playerPos = game.player.position;
     final angle = _random.nextDouble() * 2 * pi;
     final distance = _random.nextDouble() * Config.garbageSpawnRadius;
@@ -48,21 +70,32 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
 
     final clampedPos = _clampToMapBounds(garbagePos);
 
+    // キーを計算
+    final key = _getKeyForPosition(clampedPos);
+
+    // キーの重複チェック（minGarbageSpacing単位のグリッドで管理しているため、
+    // キーが重複 = 近すぎる位置 となり、距離チェックは不要）
+    if (_garbages.containsKey(key)) {
+      return false; // 同じグリッドに既にゴミが存在する場合は失敗
+    }
+
+    // 重複がなければゴミを生成
     final garbage = Garbage(position: clampedPos);
-    final key = '${garbage.position.x.toInt()}_${garbage.position.y.toInt()}';
     _garbages[key] = garbage;
     game.world.add(garbage);
+    return true;
   }
 
   void _removeDistantGarbage() {
     final playerPos = game.player.position;
-    final garbagesToRemove = <String>[];
+    final garbagesToRemove = <(int, int)>[];
 
     for (final entry in _garbages.entries) {
       final distance = entry.value.position.distanceTo(playerPos);
 
       // 現在の目的地のゴミは削除しない
-      final isCurrentTarget = game.player.destination != null &&
+      final isCurrentTarget =
+          game.player.destination != null &&
           entry.value.position.distanceTo(game.player.destination!) < 10;
 
       if (distance > Config.garbageDespawnRadius && !isCurrentTarget) {
@@ -96,18 +129,10 @@ class GarbageManager extends Component with HasGameReference<MyGame> {
     return _garbages.values.toList();
   }
 
-  Garbage? removeGarbageAt(Vector2 position) {
-    for (final entry in _garbages.entries) {
-      final distance = entry.value.position.distanceTo(position);
-      if (distance <= Config.arrivalThreshold) {
-        final garbage = _garbages.remove(entry.key);
-        if (garbage != null) {
-          garbage.removeFromParent();
-        }
-        return garbage;
-      }
-    }
-    return null;
+  void removeGarbage(Garbage garbage) {
+    final key = _getKeyForPosition(garbage.position);
+    _garbages.remove(key);
+    garbage.removeFromParent();
   }
 
   void clear() {

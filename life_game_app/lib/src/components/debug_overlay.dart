@@ -14,6 +14,7 @@ class DebugOverlay extends PositionComponent {
   final Player player;
   late final TextComponent _playerPositionText;
   late final TextComponent _destinationText;
+  late final TextComponent _idleModeText;
 
   // デバッグオーバーレイの表示/非表示を切り替えるフラグ
   bool _isVisible = true;
@@ -54,6 +55,20 @@ class DebugOverlay extends PositionComponent {
       ),
     );
     add(_destinationText);
+
+    // モード情報のテキスト
+    _idleModeText = TextComponent(
+      position: Vector2(0, 40), // 2行下に配置
+      anchor: Anchor.topLeft,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.cyan,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    add(_idleModeText);
   }
 
   @override
@@ -69,6 +84,9 @@ class DebugOverlay extends PositionComponent {
 
     // 目的地座標を更新
     _updateDestination();
+
+    // モード情報を更新
+    _updateModeInfo();
   }
 
   void _updatePlayerPosition() {
@@ -87,11 +105,21 @@ class DebugOverlay extends PositionComponent {
     }
   }
 
+  void _updateModeInfo() {
+    if (player.isManualMovement) {
+      final idleSeconds = player.idleTime.toStringAsFixed(1);
+      _idleModeText.text = 'Mode: Manual (idle: ${idleSeconds}s)';
+    } else {
+      _idleModeText.text = 'Mode: Automatic';
+    }
+  }
+
   /// デバッグオーバーレイの表示/非表示を切り替え
   void toggleVisibility() {
     _isVisible = !_isVisible;
     _playerPositionText.text = _isVisible ? _playerPositionText.text : '';
     _destinationText.text = _isVisible ? _destinationText.text : '';
+    _idleModeText.text = _isVisible ? _idleModeText.text : '';
   }
 
   /// デバッグオーバーレイを表示
@@ -104,6 +132,7 @@ class DebugOverlay extends PositionComponent {
     _isVisible = false;
     _playerPositionText.text = '';
     _destinationText.text = '';
+    _idleModeText.text = '';
   }
 
   /// 将来的にデバッグ項目を追加するためのメソッド例

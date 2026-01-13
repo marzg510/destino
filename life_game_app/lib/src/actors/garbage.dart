@@ -19,7 +19,11 @@ class Garbage extends CircleComponent {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    add(CircleHitbox(collisionType: CollisionType.passive));
+    // 衝突判定を視覚的なサイズより大きくして、確実にゴミを取得できるようにする
+    add(CircleHitbox(
+      radius: Config.arrivalThreshold,
+      collisionType: CollisionType.passive,
+    ));
   }
 
   @override
@@ -36,4 +40,5 @@ class Garbage extends CircleComponent {
         ..strokeWidth = 2,
     );
   }
+
 }
